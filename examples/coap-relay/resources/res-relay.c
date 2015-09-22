@@ -37,13 +37,13 @@
  */
 
 #include "contiki.h"
-
+#include "dev/relay.h"
 
 
 #include <string.h>
 #include "rest-engine.h"
 
-#define RELAY_PIN 2     /* Relay Pin */
+#define RELAY_PIN 2     /* Relay Pin  DIO1*/ 
 #define PORT_D GPIO_D_BASE
 
 #define DEBUG 0
@@ -59,11 +59,11 @@
 #endif
 
 static void res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-
+static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 /*A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated*/
 RESOURCE(res_relay,
-         "title=\"Relay\";rt=\"Control\"",
-         NULL,
+         "title=\"Relay: ?mode=on|off\";rt=\"Control\"",
+         res_get_handler,
          res_post_put_handler,
          res_post_put_handler,
          NULL);
@@ -71,14 +71,63 @@ RESOURCE(res_relay,
 static void
 res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
-  uint8_t method = REST.get_method_type(request);
-  unsigned char ledv;
-  printf("%d\n", method);
-  PRINTF("%d\n", method);
+  const char *mode = NULL;
+  size_t len = 0;
   relay_enable(PORT_D, RELAY_PIN); // PUT the right relay pin here
  
-  if (method & METHOD_PUT)
-  {   
-  relay_on(PORT_D, RELAY_PIN);
-  }
+  //Get mode
+  len = REST.get_query_variable(request, "mode", &mode);
+  
+  if(strncmp(mode, "on", len) == 0)
+  {  
+  	if(relay_status(PORT_D, RELAY_PIN ))    
+        {
+		PRINTF("already relay on \n");
+		const char *msg = "Light already on";
+		REST.set_response_payload(response, msg, strlen(msg));
+	}
+        else 
+        {
+		relay_on(PORT_D, RELAY_PIN);
+		const char *msg = "Light on";
+		REST.set_response_payload(response, msg, strlen(msg));
+	}
+   }
+   else if (strncmp(mode, "off", len) == 0)
+   {  
+   	if(!(relay_status(PORT_D, RELAY_PIN )))
+	{    
+        	PRINTF("already relay off \n");
+		const char *msg = "Light already off";
+		REST.set_response_payload(response, msg, strlen(msg));
+	}
+        else 
+	{
+        	relay_off(PORT_D, RELAY_PIN);
+		const char *msg = "Light off";
+		REST.set_response_payload(response, msg, strlen(msg));
+	}
+   }
+   else
+   {
+	const char *msg = "Wrong mode mode should be on|off";
+	REST.set_response_payload(response, msg, strlen(msg));
+   }
+}
+
+static void
+res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+{
+	if(relay_status(PORT_D, RELAY_PIN ))  
+	{  
+        	PRINTF("relay is on \n"); // put response
+        	const char *msg = "Light on";
+		REST.set_response_payload(response, msg, strlen(msg));
+       	}
+       	else
+       	{ 
+       		PRINTF("relay is off \n"); //put response
+           	const char *msg = "Light off";
+		REST.set_response_payload(response, msg, strlen(msg));
+       	}
 }

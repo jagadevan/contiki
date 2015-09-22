@@ -42,13 +42,14 @@
 #include "contiki.h"
 #include "contiki-net.h"
 #include "rest-engine.h"
-#include "relay.h"
+//#include <dev/relay.h>
+#include "platform/openmote/dev/relay.h"
 
 #if PLATFORM_HAS_BUTTON
 #include "dev/button-sensor.h"
 #endif
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -101,6 +102,7 @@ AUTOSTART_PROCESSES(&er_example_server);
 
 PROCESS_THREAD(er_example_server, ev, data)
 {
+  PRINTF("*******BUTTON*******\n");  
   PROCESS_BEGIN();
 
   PROCESS_PAUSE();
