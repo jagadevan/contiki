@@ -162,7 +162,3 @@ void relay_toggle(unsigned long port_addr, unsigned char pin)
   }
 }
 /*---------------------------------------------------------------------------*/
-
-
-
-
