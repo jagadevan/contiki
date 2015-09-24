@@ -77,51 +77,110 @@ static void
 res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
 
+    /*char const * const leds = leds_get();
+    unsigned char length = sizeof(leds);
+    memcpy(buffer, leds, length);
+    REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+    REST.set_header_etag(response, (uint8_t *) &length, 1);
+    REST.set_response_payload(response, buffer, length);  
+    printf(" LED =%u\n", leds);
+    PRINTF(" LED =%u\n", leds);
+    */
+
 if (leds_get()==4)
-    {
+{
     char const * const message = "RED LED ON";
      int length = 10;
      memcpy(buffer, message, length);
-        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); /* text/plain is the default, hence this option could be       omitted. */
+        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
         REST.set_header_etag(response, (uint8_t *) &length, 1);
         REST.set_response_payload(response, buffer, length);  
-    printf("status ON\n", leds_get());
-    PRINTF("status ON\n", leds_get());
+    printf("RED LED ON\n", leds_get());
+    PRINTF("RED LED ON\n", leds_get());
 }
 
 else if (leds_get()==1)
- {   
+{   
     char const * const message = "GREEN LED ON";
      int length = 13;
      memcpy(buffer, message, length);
-        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); /* text/plain is the default, hence this option could be       omitted. */
+        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
         REST.set_header_etag(response, (uint8_t *) &length, 1);
         REST.set_response_payload(response, buffer, length);  
-    printf("status ON\n", leds_get());
-    PRINTF("status ON\n", leds_get());
+    printf("GREEN LED ON\n", leds_get());
+    PRINTF("GREEN LED ON\n", leds_get());
 }
 
-else if ((leds_get()==1) && (leds_get()==4))
- {
-    char const * const message = "R&G LED ON";
-     int length = 10;
-     memcpy(buffer, message, length);
-        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); /* text/plain is the default, hence this option could be       omitted. */
-        REST.set_header_etag(response, (uint8_t *) &length, 1);
-        REST.set_response_payload(response, buffer, length);  
-    printf("status ON\n", leds_get());
-    PRINTF("status ON\n", leds_get());
+else if (leds_get()==2)
+{
+            char const * const message = "BLUE LED ON";
+            int length = 10;
+            memcpy(buffer, message, length);
+            REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+            REST.set_header_etag(response, (uint8_t *) &length, 1);
+            REST.set_response_payload(response, buffer, length);  
+            printf("BLUE LED ON\n", leds_get());
+            PRINTF("BLUE LED ON\n", leds_get());
 }
+
+else if (leds_get()==5)
+{
+            char const * const message = "R&G LED ON";
+            int length = 10;
+            memcpy(buffer, message, length);
+            REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+            REST.set_header_etag(response, (uint8_t *) &length, 1);
+            REST.set_response_payload(response, buffer, length);  
+            printf("R&G LED ON\n", leds_get());
+            PRINTF("R&G LED ON\n", leds_get());
+}
+
+else if (leds_get()==3)
+ {
+            char const * const message = "G&B LED ON";
+            int length = 10;
+            memcpy(buffer, message, length);
+            REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+            REST.set_header_etag(response, (uint8_t *) &length, 1);
+            REST.set_response_payload(response, buffer, length);  
+            printf("B&G LED ON\n", leds_get());
+            PRINTF("B&G LED ON\n", leds_get());
+}
+
+else if (leds_get()==6)
+ {
+            char const * const message = "R&B LED ON";
+            int length = 10;
+            memcpy(buffer, message, length);
+            REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+            REST.set_header_etag(response, (uint8_t *) &length, 1);
+            REST.set_response_payload(response, buffer, length);  
+            printf("R&B LED ON\n", leds_get());
+            PRINTF("R&B LED ON\n", leds_get());
+}
+
+else if (leds_get()==7)
+ {
+            char const * const message = "R&G&B LED ON";
+            int length = 12;
+            memcpy(buffer, message, length);
+            REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
+            REST.set_header_etag(response, (uint8_t *) &length, 1);
+            REST.set_response_payload(response, buffer, length);  
+            printf("R&G&B LED ON\n", leds_get());
+            PRINTF("R&G&B LED ON\n", leds_get());
+}
+
 else 
 {
      char const * const message = "LED OFF";
      int length = 7;
      memcpy(buffer, message, length);
-        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); /* text/plain is the default, hence this option could be       omitted. */
+        REST.set_header_content_type(response, REST.type.TEXT_PLAIN); 
         REST.set_header_etag(response, (uint8_t *) &length, 1);
         REST.set_response_payload(response, buffer, length); 
         printf("status OFF\n", leds_get());
-        PRINTF("status OFF\n", leds_get());
+        PRINTF("status OFF\n", leds_get());  
 }
 }
 
@@ -166,25 +225,37 @@ res_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
                  printf("GREEN_LED status ON\n");
                  PRINTF("GREEN_LED status ON\n");
             }
-       
-        }
-     /*if(strncmp(mode, "on", len) == 0) {
-      leds_on(LEDS_GREEN);
-      printf("GREEN_LED status ON\n");
-      PRINTF("GREEN_LED status ON\n");
+       else if (leds_get()==2)
+            {
+                 printf("BLUE_LED status ON\n");
+                 PRINTF("BLUE_LED status ON\n");
+            }
+        else if (leds_get()==3)
+            {
+                 printf("G&B_LED status ON\n");
+                 PRINTF("G&B_LED status ON\n");
+            }
+        else if (leds_get()==6)
+            {
+                 printf("B&R_LED status ON\n");
+                 PRINTF("B&R_LED status ON\n");
+            }
+        else if (leds_get()==5)
+            {
+                 printf("G&R_LED status ON\n");
+                 PRINTF("G&R_LED status ON\n");
+            }
+        else if (leds_get()==7)
+            {
+                 printf("R&G&B_LED status ON\n");
+                 PRINTF("R&G&B_LED status ON\n");
+            }
         }
         
-      if((strncmp(mode, "ron", len) == 0) && (strncmp(mode, "gon", len) == 0)) {
-      leds_on(LEDS_RED);
-      leds_on(LEDS_GREEN);
-      printf("RED_GREEN_LED status ON\n");
-      PRINTF("RED_GREEN_LED status ON\n");
-            }*/
-      
       else if(strncmp(mode, "off", len) == 0) {
       leds_off(led);
-      printf("LEDs status OFF\n");
-      PRINTF("LEDs status OFF\n");
+      //printf("LEDs status OFF\n");
+      //PRINTF("LEDs status OFF\n");
     } else {
       success = 0;
     }
