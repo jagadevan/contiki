@@ -60,14 +60,18 @@
 
 static void res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_periodic_handler(void);
 /*A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated*/
-RESOURCE(res_relay,
+PERIODIC_RESOURCE(res_relay,
          "title=\"Relay: ?mode=on|off\";rt=\"Control\"",
          res_get_handler,
+         NULL,
          res_post_put_handler,
-         res_post_put_handler,
-         NULL);
+         NULL,
+         5 * CLOCK_SECOND,
+         res_periodic_handler);
 
+static int32_t event_counter = 0;
 static void
 res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
@@ -118,16 +122,39 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 static void
 res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
-	if(relay_status(PORT_D, RELAY_PIN ))  
+	// observerable resources start
+        REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
+        REST.set_header_max_age(response, res_relay.periodic->period / CLOCK_SECOND);
+        REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "VERY LONG EVENT %lu", event_counter));
+        // observerable resources end
+        if(relay_status(PORT_D, RELAY_PIN ))  
 	{  
         	PRINTF("relay is on \n"); // put response
         	const char *msg = "Light on";
 		REST.set_response_payload(response, msg, strlen(msg));
+	//	REST.notify_subscribers(&res_relay);
+
        	}
        	else
        	{ 
        		PRINTF("relay is off \n"); //put response
            	const char *msg = "Light off";
 		REST.set_response_payload(response, msg, strlen(msg));
+	//	REST.notify_subscribers(&res_relay);
+
        	}
+}
+
+
+static void
+res_periodic_handler()
+{
+  /* Do a periodic task here, e.g., sampling a sensor. */
+  ++event_counter;
+
+  /* Usually a condition is defined under with subscribers are notified, e.g., large enough delta in sensor reading. */
+  if(1) {
+    /* Notify the registered observers which will trigger the res_get_handler to create the response. */
+    REST.notify_subscribers(&res_relay);
+  }
 }

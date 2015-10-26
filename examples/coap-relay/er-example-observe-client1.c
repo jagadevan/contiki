@@ -68,7 +68,9 @@
 /*----------------------------------------------------------------------------*/
 /* FIXME: This server address is hard-coded for Cooja */
 #define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xfe80, 0, 0, 0, 0x0212, \
-                                          0x7402, 0x0002, 0x0202)
+                                          0x4b00, 0x89ab, 0xcdef)
+
+//coap://[aaaa::212:4b00:89ab:cdef]:5683/actuators/relay?mode=on
 #define REMOTE_PORT     UIP_HTONS(COAP_DEFAULT_PORT)
 /* Toggle interval in seconds */
 #define TOGGLE_INTERVAL 30
@@ -122,12 +124,13 @@ notification_callback(coap_observee_t *obs, void *notification,
     break;
   }
 }
+
 /*----------------------------------------------------------------------------*/
 /*
  * Toggle the observation of the remote resource
  */
 void
-toggle_observation(void)
+relay_observation(void)
 {
   if(obs) {
     printf("Stopping observation\n");
@@ -139,7 +142,8 @@ toggle_observation(void)
                                         OBS_RESOURCE_URI, notification_callback, NULL);
   }
 }
-/*----------------------------------------------------------------------------*/
+
+
 /*
  * The main (proto-)thread. It starts/stops the observation of the remote
  * resource every time the timer elapses or the button (if available) is
@@ -165,8 +169,10 @@ PROCESS_THREAD(er_example_observe_client, ev, data)
   while(1) {
     PROCESS_YIELD();
     if(etimer_expired(&et)) {
-      printf("--Toggle timer--\n");
-      toggle_observation();
+    //  printf("--Toggle timer--\n");
+      printf("--Relay timer--\n");
+      relay_observation();
+//      toggle_observation();
       printf("\n--Done--\n");
       etimer_reset(&et);
 #if PLATFORM_HAS_BUTTON
