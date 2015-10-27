@@ -60,16 +60,15 @@
 
 static void res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
-static void res_periodic_handler(void);
+static void res_event_handler(void);
 /*A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated*/
-PERIODIC_RESOURCE(res_relay,
+EVENT_RESOURCE(res_relay,
          "title=\"Relay: ?mode=on|off\";rt=\"Control\"",
          res_get_handler,
          NULL,
          res_post_put_handler,
          NULL,
-         5 * CLOCK_SECOND,
-         res_periodic_handler);
+         res_event_handler);
 
 static int32_t event_counter = 0;
 static void
@@ -81,7 +80,8 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
  
   //Get mode
   len = REST.get_query_variable(request, "mode", &mode);
-  
+  REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
+   REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "EVENT %lu", event_counter));
   if(strncmp(mode, "on", len) == 0)
   {  
   	if(relay_status(PORT_D, RELAY_PIN ))    
@@ -89,12 +89,14 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 		PRINTF("already relay on \n");
 		const char *msg = "Light already on";
 		REST.set_response_payload(response, msg, strlen(msg));
+                REST.notify_subscribers(&res_relay);
 	}
         else 
         {
 		relay_on(PORT_D, RELAY_PIN);
 		const char *msg = "Light on";
 		REST.set_response_payload(response, msg, strlen(msg));
+                REST.notify_subscribers(&res_relay);
 	}
    }
    else if (strncmp(mode, "off", len) == 0)
@@ -104,12 +106,14 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
         	PRINTF("already relay off \n");
 		const char *msg = "Light already off";
 		REST.set_response_payload(response, msg, strlen(msg));
+                REST.notify_subscribers(&res_relay);
 	}
         else 
 	{
         	relay_off(PORT_D, RELAY_PIN);
 		const char *msg = "Light off";
 		REST.set_response_payload(response, msg, strlen(msg));
+                REST.notify_subscribers(&res_relay);
 	}
    }
    else
@@ -117,15 +121,20 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 	const char *msg = "Wrong mode mode should be on|off";
 	REST.set_response_payload(response, msg, strlen(msg));
    }
+   
 }
 
 static void
 res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
 	// observerable resources start
+
+        //REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
+        //REST.set_header_max_age(response, res_relay.periodic->period / CLOCK_SECOND);
+        //REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "VERY LONG EVENT %lu", event_counter));
         REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-        REST.set_header_max_age(response, res_relay.periodic->period / CLOCK_SECOND);
-        REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "VERY LONG EVENT %lu", event_counter));
+        REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "EVENT %lu", event_counter));
+
         // observerable resources end
         if(relay_status(PORT_D, RELAY_PIN ))  
 	{  
@@ -147,7 +156,7 @@ res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
 
 
 static void
-res_periodic_handler()
+res_event_handler()
 {
   /* Do a periodic task here, e.g., sampling a sensor. */
   ++event_counter;
