@@ -32,7 +32,7 @@
 
 /**
  * \file
- *         A very simple Contiki application showing how relay works
+ *         A very simple Contiki application showing how pwm works
  * \author
  *         Manoj Sony <manojsony@gmail.com>
  */
@@ -40,10 +40,11 @@
 #include "contiki.h"
 
 #include <stdio.h> /* For printf() */
+#include "dev/leds.h"
+#include <unistd.h>
 
-#define LED_RELAY_PIN 2     /* Relay Pin */
-#define PORT_D GPIO_D_BASE
-
+#define LED_RELAY_PIN 3     /* Relay Pin */
+#define PORT_B GPIO_B_BASE
 
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
@@ -54,31 +55,36 @@ PROCESS_THREAD(hello_world_process, ev, data)
   
   static struct etimer timer;
   static int count;
+  static int duty_cycle; 
   PROCESS_BEGIN();
+  const int pulse_period = 100;
+  const int divider = 1000; //checking every 1 ms increase for more granularity
 
-  etimer_set(&timer, CLOCK_CONF_SECOND * 10);
+  etimer_set(&timer, (CLOCK_CONF_SECOND / divider ));  // CLOCK_CONF_SECOND = 1000(1s)
   count = 0;
-  relay_enable(PORT_D,LED_RELAY_PIN);
- 
+  duty_cycle = 90; //duty cycle in percentage
+  relay_enable(PORT_B,LED_RELAY_PIN);
+  relay_off(PORT_B,LED_RELAY_PIN);
+  //leds_off(LEDS_RED);
+
    while(1) {
 
     PROCESS_WAIT_EVENT();
 
     if(ev == PROCESS_EVENT_TIMER) {
         
-      if(count %2 == 0){
-		relay_on(PORT_D,LED_RELAY_PIN);
+     	if(count <= duty_cycle){
+		relay_on(PORT_B,LED_RELAY_PIN);
+		//leds_on(LEDS_RED);
       	}
       	else {  
-       		relay_off(PORT_D,LED_RELAY_PIN);
+		relay_off(PORT_B,LED_RELAY_PIN);
+		//relay_on(PORT_D,LED_RELAY_PIN);
+		//leds_off(LEDS_RED);
       	} 
-/*	if(count %2 == 0)
-	{	
-		relay_toggle(PORT_D,LED_RELAY_PIN);
-		relay_status(PORT_D,LED_RELAY_PIN);
-	}
-*/
+
 	count ++;
+	if (count == pulse_period) count = 0;
 	etimer_reset(&timer);
     }
   }
