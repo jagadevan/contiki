@@ -73,7 +73,8 @@ extern resource_t
   res_push,
   res_event,
   res_sub,
-  res_relay, /* add relay resource to the resource directory */ 
+  res_relay,  /* add fan resource to the resource directory */  
+  res_fan, /* add relay resource to the resource directory */ 
   res_b1_sep_b2;
 #if PLATFORM_HAS_LEDS
 extern resource_t res_leds, res_toggle;
@@ -140,6 +141,7 @@ PROCESS_THREAD(er_example_server, ev, data)
   
 /* RELAY RESOURCE to be placed here */
   rest_activate_resource(&res_relay, "actuators/relay"); /* relay resource is added to actuators */
+  rest_activate_resource(&res_fan, "actuators/fan"); /* relay resource is added to actuators */
 #if PLATFORM_HAS_LEDS
 /*  rest_activate_resource(&res_leds, "actuators/leds"); */
   rest_activate_resource(&res_toggle, "actuators/toggle");
