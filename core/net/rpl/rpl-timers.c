@@ -66,6 +66,7 @@ static uint8_t dio_send_ok;
 static void
 handle_periodic_timer(void *ptr)
 {
+  rpl_purge_dags();
   rpl_purge_routes();
   rpl_recalculate_ranks();
 
@@ -311,7 +312,7 @@ schedule_dao(rpl_instance_t *instance, clock_time_t latency)
 void
 rpl_schedule_dao(rpl_instance_t *instance)
 {
-  schedule_dao(instance, RPL_DAO_LATENCY);
+  schedule_dao(instance, RPL_DAO_DELAY);
 }
 /*---------------------------------------------------------------------------*/
 void
