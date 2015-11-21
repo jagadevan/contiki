@@ -28,36 +28,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 /**
+ * \addtogroup platform
+ * @{
  *
- * \defgroup OpenMote Peripherals
- *
- * Defines related to OpenMote
- *
- * PC4 is used to drive LED1 as well as the USB D+ pullup. Therefore
- * when USB is enabled, LED1 can not be driven by firmware.
+ * \defgroup openmote The OpenMote Platform
  *
  * \file
- * Header file with definitions related to the I/O connections on OpenMote
+ * Header file with definitions related to the I/O connections on the
+ * OpenMote-CC2538 platform. This file provides connectivity information on
+ * LEDs, Buttons, UART and other peripherals.
  *
- * \note   Do not include this file directly. It gets included by contiki-conf
- *         after all relevant directives have been set.
+ * \note
+ * Do not include this file directly. It gets included by contiki-conf
+ * after all relevant directives have been set.
  */
+
 #ifndef BOARD_H_
 #define BOARD_H_
-
+/*---------------------------------------------------------------------------*/
 #include "dev/gpio.h"
 #include "dev/nvic.h"
 /*---------------------------------------------------------------------------*/
-/** \name OpenMote LED configuration
+/** \name OpenMote-CC2538 LED configuration
  *
- * LEDs on OpenMote are connected as follows:
+ * LEDs on the OpenMote-CC2538 are connected as follows:
  * - LED1 (Red)    -> PC4
- * - LED2 (Orange) -> PC5
- * - LED3 (Yellow) -> PC6
- * - LED4 (Green)  -> PC7
+ * - LED2 (Yellow) -> PC6
+ * - LED3 (Green)  -> PC7
+ * - LED4 (Orange) -> PC5
  *
- * LED1 shares the same pin with the USB pullup
  * @{
  */
 /*---------------------------------------------------------------------------*/
@@ -68,111 +69,94 @@
 #undef LEDS_RED
 #undef LEDS_CONF_ALL
 
-#define LEDS_ORANGE             32	/**< LED2 (Orange) -> PC5 */
-#define LEDS_YELLOW             64	/**< LED3 (Yellow) -> PC6 */
-#define LEDS_GREEN              128	/**< LED4 (Green)  -> PC7 */
-
-
-#if USB_SERIAL_CONF_ENABLE
-#define LEDS_CONF_ALL           224	
-#define LEDS_RED                LEDS_ORANGE
-#else
-#define LEDS_CONF_ALL           240	
-#define LEDS_RED                16	/**< LED1 (Red)    -> PC4 */
-#endif
+#define LEDS_RED       16  /**< LED1 (Red) -> PC4 */
+#define LEDS_YELLOW    64  /**< LED2 (Yellow) -> PC6 */
+#define LEDS_GREEN     128 /**< LED3 (Green)  -> PC7 */
+#define LEDS_ORANGE    32  /**< LED4 (Orange) -> PC5 */
+#define LEDS_CONF_ALL  240
 
 /* Notify various examples that we have LEDs */
-#define PLATFORM_HAS_LEDS       1
+#define PLATFORM_HAS_LEDS        1
 /** @} */
 /*---------------------------------------------------------------------------*/
 /** \name USB configuration
  *
- * The USB pullup is driven by PC4 and is shared with LED1
+ * The USB pullup is driven by PC0
  */
-#define USB_PULLUP_PORT         GPIO_C_NUM
-#define USB_PULLUP_PIN          4
+#define USB_PULLUP_PORT          GPIO_C_NUM
+#define USB_PULLUP_PIN           0
 /** @} */
 /*---------------------------------------------------------------------------*/
 /** \name UART configuration
  *
- * For OpenMote,
+ * On the OpenMote, the UART is connected to the
+ * following ports/pins
  * - RX:  PA0
  * - TX:  PA1
- * - CTS: PA3 (Can only be used with UART1)
- * - RTS: PA5 (Can only be used with UART1)
+ * - CTS: PB0 (Can only be used with UART1)
+ * - RTS: PD3 (Can only be used with UART1)
  *
  * We configure the port to use UART0. To use UART1, replace UART0_* with
  * UART1_* below.
  * @{
  */
-#define UART0_RX_PORT           GPIO_A_NUM
-#define UART0_RX_PIN            0
+#define UART0_RX_PORT            GPIO_A_NUM
+#define UART0_RX_PIN             0
 
-#define UART0_TX_PORT           GPIO_A_NUM
-#define UART0_TX_PIN            1
+#define UART0_TX_PORT            GPIO_A_NUM
+#define UART0_TX_PIN             1
 
-#define UART1_CTS_PORT          GPIO_A_NUM
-#define UART1_CTS_PIN           3
+#define UART1_CTS_PORT           GPIO_B_NUM
+#define UART1_CTS_PIN            0
 
-#define UART1_RTS_PORT          GPIO_A_NUM
-#define UART1_RTS_PIN           5
+#define UART1_RTS_PORT           GPIO_D_NUM
+#define UART1_RTS_PIN            3
 /** @} */
 /*---------------------------------------------------------------------------*/
-
-/*---------------------------------------------------------------------------*/
-/** \name OpenMote Button configuration
+/** \name OpenMote-CC2538 Button configuration
  *
- * Buttons on OpenMote are connected as follows:
- * - BUTTON_SELECT -> PC3
+ * Buttons on the OpenMote-CC2538 are connected as follows:
+ * - BUTTON_USER -> PC3
  * @{
  */
-#define BUTTON_SELECT_PORT      GPIO_C_NUM
-#define BUTTON_SELECT_PIN       3
-#define BUTTON_SELECT_VECTOR    NVIC_INT_GPIO_PORT_C
-
+/** BUTTON_USER -> PC3 */
+#define BUTTON_USER_PORT       GPIO_C_NUM
+#define BUTTON_USER_PIN        3
+#define BUTTON_USER_VECTOR     NVIC_INT_GPIO_PORT_C
 /* Notify various examples that we have Buttons */
-#define PLATFORM_HAS_BUTTON     1
+#define PLATFORM_HAS_BUTTON    1
 /** @} */
-
 /*---------------------------------------------------------------------------*/
 /**
  * \name SPI configuration
  *
- * These values configure which CC2538 pins to use for the SPI lines. Both
- * SPI instances can be used independently by providing the corresponding
- * port / pin macros.
+ * These values configure which CC2538 pins to use for the SPI lines.
  * @{
  */
-#define SPI0_IN_USE             0
-#define SPI1_IN_USE             0
-#if SPI0_IN_USE
-/** Clock port SPI0 */
-#define SPI0_CLK_PORT           GPIO_A_NUM
-/** Clock pin SPI0 */
-#define SPI0_CLK_PIN            2
-/** TX port SPI0 (master mode: MOSI) */
-#define SPI0_TX_PORT            GPIO_A_NUM
-/** TX pin SPI0 */
-#define SPI0_TX_PIN             4
-/** RX port SPI0 (master mode: MISO */
-#define SPI0_RX_PORT            GPIO_A_NUM
-/** RX pin SPI0 */
-#define SPI0_RX_PIN             5
-#endif  /* #if SPI0_IN_USE */
-#if SPI1_IN_USE
-/** Clock port SPI1 */
-#define SPI1_CLK_PORT           GPIO_A_NUM
-/** Clock pin SPI1 */
-#define SPI1_CLK_PIN            2
-/** TX port SPI1 (master mode: MOSI) */
-#define SPI1_TX_PORT            GPIO_A_NUM
-/** TX pin SPI1 */
-#define SPI1_TX_PIN             4
-/** RX port SPI1 (master mode: MISO) */
-#define SPI1_RX_PORT            GPIO_A_NUM
-/** RX pin SPI1 */
-#define SPI1_RX_PIN             5
-#endif  /* #if SPI1_IN_USE */
+#define SPI_CLK_PORT             GPIO_A_NUM
+#define SPI_CLK_PIN              2
+#define SPI_MOSI_PORT            GPIO_A_NUM
+#define SPI_MOSI_PIN             5
+#define SPI_MISO_PORT            GPIO_A_NUM
+#define SPI_MISO_PIN             4
+#define SPI_SEL_PORT             GPIO_A_NUM
+#define SPI_SEL_PIN              3
+/** @} */
+/*---------------------------------------------------------------------------*/
+/**
+ * \name I2C configuration
+ *
+ * These values configure which CC2538 pins to use for the I2C lines.
+ * @{
+ */
+#define I2C_INT0_PORT             GPIO_B_NUM		//DI8
+#define I2C_INT0_PIN              2
+#define I2C_SCL_PORT            	GPIO_B_NUM		//PWM1
+#define I2C_SCL_PIN               3
+#define I2C_SDA_PORT              GPIO_B_NUM		//PWM0
+#define I2C_SDA_PIN               4
+#define I2C_INT1_PORT             GPIO_B_NUM		//DO8
+#define I2C_INT1_PIN              5
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
@@ -181,10 +165,6 @@
  */
 #define BOARD_STRING "OpenMote-CC2538"
 /** @} */
-
+/*---------------------------------------------------------------------------*/
 #endif /* BOARD_H_ */
-
-/**
- * @}
- * @}
- */
+/** @} */
