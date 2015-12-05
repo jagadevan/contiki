@@ -32,89 +32,58 @@
 
 /**
  * \file
- *         A very simple Contiki application showing how pwm works
+ *         A very simple Contiki application showing how relay works
  * \author
  *         Manoj Sony <manojsony@gmail.com>
  */
 
 #include "contiki.h"
-#include <stdbool.h>
-#include <stdint.h>
+
 #include <stdio.h> /* For printf() */
-#include "hw_ints.h"
-#include "hw_memmap.h"
-#include "gpio.h"
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys-ctrl.h"
-#include "gptimer.h"
-#include "cpu.h"
 
-
-#define LED_RELAY_PIN 2     /* Relay Pin */
+#define PIR_PIN_USED 2     /* Relay Pin */
 #define PORT_D GPIO_D_BASE
 
-
-// found in #include "sys-ctrl_a.h"
-#define SYS_CTRL_PERIPH_GPT2       0x00000002  // GPT2
-//
 
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
 /*---------------------------------------------------------------------------*/
-
-unsigned int pwmDutyCycle =50 ;  // Time for which it shud be on    
-unsigned int ulperiod = 1000;    // Period 
-
-/*
-unsigned int pwmDutyCycle = 50;  // Time for which it shud be on    
-unsigned int ulperiod = 900;    // Period */
-
-int delayIndex = 0;
-int delayIndex1 =0;
 PROCESS_THREAD(hello_world_process, ev, data)
 {
-  
+  //GPIO_A_BASE , GPIO_B_BASE ,GPIO_C_BASE, GPIO_D_BASE 
+  int val =0;
+  int pirstate = 0;
   PROCESS_BEGIN();
-    printf(" \n16-Bit PWM timer ->\n\r");
-    printf(" Mode = PWM\n\r");
-     // loadset , match
-    checkthiscode(999,50);
-   TimerMatchSet(GPT_2_BASE, GPTIMER_A, 950);
+  printf("PIR testing \n\r" );
+  //set port D pin2 as input pin
+  GPIO_SET_INPUT(PORT_D, (1 << PIR_PIN_USED));
 
+while(1)
+{
+	val = GPIO_READ_PIN(PORT_D,(1<<PIR_PIN_USED));
 
- while(1)
-    {
-//TimerMatchSet(GPT_2_BASE, GPTIMER_A, 50);
-printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
+	if (val == (1<<PIR_PIN_USED))
+	{
+          	if ( pirstate == 0)
+                {
+		  printf( " Motion detected...\n\r");
+		  pirstate = 1;	
+  		}
+	}
+	else
+	{  	if ( pirstate == 1)
+                {
+		  printf( " Motion ended...\n\r");
+		  pirstate = 0;	
+  		}
+
+	}
 
 }
-
-/*
-    while(1)
-    {
-      	 TimerMatchSet(GPT_2_BASE, GPTIMER_A, pwmDutyCycle++);
-
-         if( pwmDutyCycle >= ulperiod - 1)   {
-            pwmDutyCycle = 900;
-	   }
-        
-         if((pwmDutyCycle >= 900) && (pwmDutyCycle <= 975) )  {     // After duty cycle : 975 bulb is off  
-          // Adding delay to see the brightness change
-           for (delayIndex=0; delayIndex<=100000; delayIndex++);
-           for (delayIndex=0; delayIndex<=100000; delayIndex++);
-           for (delayIndex=0; delayIndex<=100000; delayIndex++);
-           for (delayIndex=0; delayIndex<=100000; delayIndex++);
- 	 }
-
-         //printf(" %d is DutyCycle , %d is ulperiod , timerLoadget =%d \n\r ",pwmDutyCycle,ulperiod, TimerLoadGet(GPTIMER2_BASE, GPTIMER_A)); 
-         printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
-	 //SysCtlDelay(50000);
-
-    } // end of while
-*/
- 
+  
+  printf("Hello world \n\r" );
+  
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

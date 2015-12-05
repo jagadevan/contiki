@@ -64,34 +64,19 @@ PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
 /*---------------------------------------------------------------------------*/
 
-unsigned int pwmDutyCycle =50 ;  // Time for which it shud be on    
+unsigned int pwmDutyCycle = 900;  // Time for which it shud be on    
 unsigned int ulperiod = 1000;    // Period 
-
-/*
-unsigned int pwmDutyCycle = 50;  // Time for which it shud be on    
-unsigned int ulperiod = 900;    // Period */
-
 int delayIndex = 0;
-int delayIndex1 =0;
+
 PROCESS_THREAD(hello_world_process, ev, data)
 {
   
   PROCESS_BEGIN();
     printf(" \n16-Bit PWM timer ->\n\r");
     printf(" Mode = PWM\n\r");
-     // loadset , match
-    checkthiscode(999,50);
-   TimerMatchSet(GPT_2_BASE, GPTIMER_A, 950);
+  
+    checkthiscode();
 
-
- while(1)
-    {
-//TimerMatchSet(GPT_2_BASE, GPTIMER_A, 50);
-printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
-
-}
-
-/*
     while(1)
     {
       	 TimerMatchSet(GPT_2_BASE, GPTIMER_A, pwmDutyCycle++);
@@ -107,14 +92,11 @@ printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycl
            for (delayIndex=0; delayIndex<=100000; delayIndex++);
            for (delayIndex=0; delayIndex<=100000; delayIndex++);
  	 }
-
-         //printf(" %d is DutyCycle , %d is ulperiod , timerLoadget =%d \n\r ",pwmDutyCycle,ulperiod, TimerLoadGet(GPTIMER2_BASE, GPTIMER_A)); 
-         printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
-	 //SysCtlDelay(50000);
+         printf(" %d is DutyCycle , %d is ulperiod , timerLoadget =%d \n\r ",pwmDutyCycle,ulperiod, TimerLoadGet(GPTIMER2_BASE, GPTIMER_A)); 
+         //SysCtlDelay(50000);
 
     } // end of while
-*/
- 
+   
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/

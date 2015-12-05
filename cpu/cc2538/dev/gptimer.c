@@ -50,7 +50,10 @@
 #include "debug.h"
 #include "interrupt.h"
 #include "gptimer.h"
-
+//addded
+#include "hw_sys_ctrl.h"
+#include "gpio.h"
+#include "ioc.h"
 //*****************************************************************************
 //
 //! \internal
@@ -1119,6 +1122,72 @@ TimerSynchronize(uint32_t ui32Base, uint32_t ui32Timers)
     //
     HWREG(ui32Base + GPTIMER_O_SYNC) = ui32Timers;
 }
+
+
+
+void checkthiscode (uint32_t period , uint32_t match )
+{
+  /* Enable module clock for the GPTx in Active mode */
+  REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
+  
+   /* Stop the timer */
+   REG(GPT_2_BASE + GPTIMER_CTL) = 0;
+   /* Use 16-bit timer */
+   REG(GPT_2_BASE + GPTIMER_CFG) = 0x04;
+   /* Configure PWM mode */
+   REG(GPT_2_BASE + GPTIMER_TAMR) = 0;
+   REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;
+   REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
+
+   /* Set the start value (period), count down */
+   REG(GPT_2_BASE+ GPTIMER_TAILR) = period ; //999;
+   /* Set the deassert period */
+   REG(GPT_2_BASE + GPTIMER_TAMATCHR) = match;//50;
+   /* Configure pin */
+   ioc_set_sel(GPIO_A_NUM, 3, IOC_PXX_SEL_GPT2_ICP1);
+   ioc_set_over(GPIO_A_NUM, 3, IOC_OVERRIDE_OE);
+   GPIO_PERIPHERAL_CONTROL(GPIO_PORT_TO_BASE(GPIO_A_NUM), GPIO_PIN_MASK(3));
+   /* Enable */
+   REG(GPTIMER_CTL + GPT_2_BASE ) |= GPTIMER_CTL_TAEN;
+
+
+}
+
+#if 0
+
+void checkthiscode (uint32_t timerBaseAddr, uint32_t timerName, uint32_t ui32period , uint32_t dutyCycle, uint32_t gpioPortNum, uint32_t gpioPinNumber )
+{
+   /* Enable module clock for the GPTx in Active mode */
+   REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
+   
+
+   /* Stop the timer */
+   REG(timerBaseAddr + GPTIMER_CTL) = 0;
+   
+   /* Use 16-bit timer */
+   REG(timerBaseAddr + GPTIMER_CFG) = 0x04;
+  
+
+   /* Configure PWM mode */
+   REG(timerBaseAddr + GPTIMER_TAMR) = 0;
+   REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;
+   REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
+   
+   /* Set the start value (period), count down */
+   REG(timerBaseAddr+ GPTIMER_TAILR) = 999;
+   /* Set the deassert period */
+   REG(timerBaseAddr + GPTIMER_TAMATCHR) = 50;
+   /* Configure pin */
+   ioc_set_sel(GPIO_A_NUM, 3, IOC_PXX_SEL_GPT2_ICP1);
+   ioc_set_over(GPIO_A_NUM, 3, IOC_OVERRIDE_OE);
+   GPIO_PERIPHERAL_CONTROL(GPIO_PORT_TO_BASE(GPIO_A_NUM), GPIO_PIN_MASK(3));
+   /* Enable */
+   REG(GPTIMER_CTL + GPT_2_BASE ) |= GPTIMER_CTL_TAEN;
+
+}
+
+#endif
+
 
 //*****************************************************************************
 //

@@ -53,7 +53,7 @@ CONTIKI_CPU_SOURCEFILES += crypto.c aes.c ccm.c sha256.c
 CONTIKI_CPU_SOURCEFILES += cc2538-rf.c udma.c lpm.c
 CONTIKI_CPU_SOURCEFILES += dbg.c ieee-addr.c
 CONTIKI_CPU_SOURCEFILES += slip-arch.c slip.c
-CONTIKI_CPU_SOURCEFILES += i2c.c cc2538-temp-sensor.c vdd3-sensor.c als-sensor.c
+CONTIKI_CPU_SOURCEFILES += i2c.c cc2538-temp-sensor.c vdd3-sensor.c als-sensor.c sht21.c
 
 CONTIKI_ADDN_DRIVERFILES += gptimer.c 
 CONTIKI_ADDN_DRIVERFILES += debug_a.c interrupt_a.c
