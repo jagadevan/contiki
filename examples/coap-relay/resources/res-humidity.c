@@ -38,7 +38,7 @@
 
 #include "contiki.h"
 #include "dev/relay.h"
-#include "dev/max44009.h"
+#include "dev/sht21.h"
 
 #include <string.h>
 #include "rest-engine.h"
@@ -62,8 +62,8 @@ static void res_post_put_handler(void *request, void *response, uint8_t *buffer,
 static void res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 static void res_event_handler(void);
 /*A simple actuator example, depending on the color query parameter and post variable mode, corresponding led is activated or deactivated*/
-EVENT_RESOURCE(res_light,
-         "title=\"Light",
+EVENT_RESOURCE(res_humidity,
+         "title=\"humidity",
          res_get_handler,
          NULL,
          NULL,
@@ -77,16 +77,14 @@ res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
 {
 	// observerable resources start
 
-         static unsigned light;
-         max44009_init();
-        //REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-        //REST.set_header_max_age(response, res_relay.periodic->period / CLOCK_SECOND);
-        //REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "VERY LONG EVENT %lu", event_counter));
+         static unsigned humidity;
+         sht21_init(); // init sht21
+        
         REST.set_header_content_type(response, REST.type.TEXT_PLAIN);
-   //     REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "EVENT %lu", event_counter));
-        light = max44009_read_light();
-        printf("Light: %d\n", (int)max44009_convert_light(light));
-        REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "Light %d", (int)max44009_convert_light(light)));
+
+        humidity = sht21_read_humidity(); // read humidity
+      //  printf("Temperature: %d degrees Celsius\n", (int)sht21_convert_temperature(temperature));
+        REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "Rlative humidity %d", (int)sht21_convert_humidity(humidity)));
        
         
 }

@@ -62,13 +62,13 @@ OUTPUT Paramaters : None
 void relay_enable(unsigned long port_addr, unsigned char pin)
 {
 
-  if(!(_RELAY_STATUS & INITED)) {
+ // if(!(_RELAY_STATUS & INITED)) {
 
     _RELAY_STATUS |= INITED;
     /* Selects the pin to be configure as the relay pin of the relay module */
     GPIO_SET_OUTPUT(port_addr,(1<<pin));
     printf("RELAY PIN INITIALIZED SUCCESSFULLY FOR PORTBASE_ADDR : 0x%x , PIN : %d  \r\n",port_addr,pin );
-  }
+//  }
 
 }
 
@@ -80,7 +80,7 @@ OUTPUT Paramaters : None
 ---------------------------------------------------------------------------*/
 void relay_on(unsigned long port_addr, unsigned char pin)
 {
-  if((_RELAY_STATUS & INITED)) {
+  //if((_RELAY_STATUS & INITED)) {
     
     GPIO_SET_PIN(port_addr,(1<<pin));
     
@@ -88,7 +88,7 @@ void relay_on(unsigned long port_addr, unsigned char pin)
     	printf("relay_on() value for PORTBASE_ADDR : 0x%x , PIN : %d  is ON\r\n",port_addr,pin );
    else
 	printf("relay_on() value for PORTBASE_ADDR : 0x%x , PIN : %d  mismatch\r\n",port_addr,pin );
-  }
+ // }
 
 }
 
@@ -100,7 +100,7 @@ OUTPUT Paramaters : None
 ---------------------------------------------------------------------------*/
 void relay_off(unsigned long port_addr, unsigned char pin)
 {
-  if((_RELAY_STATUS & INITED)) {
+  //if((_RELAY_STATUS & INITED)) {
   
      GPIO_CLR_PIN(port_addr,(1<<pin));
      if ( GPIO_READ_PIN(port_addr,(1<<pin)) == 0 )
@@ -108,7 +108,7 @@ void relay_off(unsigned long port_addr, unsigned char pin)
      else
 	printf("relay_off() value for PORTBASE_ADDR : 0x%x , PIN : %d  mismatch\r\n",port_addr,pin );    
     
-  }
+ // }
   
 }
 /*---------------------------------------------------------------------------*/
@@ -121,7 +121,7 @@ OUTPUT Paramaters : int  < value on pin read >
 ---------------------------------------------------------------------------*/
 int relay_status(unsigned long port_addr, unsigned char pin)
 {
-  if((_RELAY_STATUS & INITED)) {
+  //if((_RELAY_STATUS & INITED)) {
   
      if ( GPIO_READ_PIN(port_addr,(1<<pin)) == 0 )
      {
@@ -132,7 +132,7 @@ int relay_status(unsigned long port_addr, unsigned char pin)
 	printf("relay_status() read value for PORTBASE_ADDR : 0x%x , PIN : %d  is ON\r\n",port_addr,pin );
 	return 1;    
      }
-  }
+  //}
   
 }
 /*---------------------------------------------------------------------------*/
@@ -146,7 +146,7 @@ OUTPUT Paramaters : None
 ---------------------------------------------------------------------------*/
 void relay_toggle(unsigned long port_addr, unsigned char pin)
 {
-  if((_RELAY_STATUS & INITED)) {
+ // if((_RELAY_STATUS & INITED)) {
   
      if ( GPIO_READ_PIN(port_addr,(1<<pin)) == 0 )
      {
@@ -159,6 +159,6 @@ void relay_toggle(unsigned long port_addr, unsigned char pin)
 	printf("relay_toggle() from ON to OFF  for PORTBASE_ADDR : 0x%x , PIN : %d  \r\n",port_addr,pin );
 	  
      }
-  }
+ // }
 }
 /*---------------------------------------------------------------------------*/

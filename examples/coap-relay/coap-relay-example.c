@@ -49,6 +49,9 @@
 #include "dev/button-sensor.h"
 #endif
 
+#define PIR_PIN_USED 2     /* Relay Pin */
+#define PORT_D GPIO_D_BASE
+
 #define DEBUG 1
 #if DEBUG
 #include <stdio.h>
@@ -66,16 +69,13 @@
  * The build system automatically compiles the resources in the corresponding sub-directory.
  */
 extern resource_t
-  res_hello,
-  res_mirror,
-  res_chunks,
-  res_separate,
   res_push,
   res_event,
-  res_sub,
   res_relay,  /* add fan resource to the resource directory */  
   res_fan, /* add relay resource to the resource directory */ 
-  res_b1_sep_b2;
+  res_temp,
+  res_light,
+  res_humidity;
 #if PLATFORM_HAS_LEDS
 extern resource_t res_leds, res_toggle;
 #endif
@@ -103,7 +103,6 @@ AUTOSTART_PROCESSES(&er_example_server);
 
 PROCESS_THREAD(er_example_server, ev, data)
 {
-  PRINTF("*******BUTTON*******\n");  
   PROCESS_BEGIN();
 
   PROCESS_PAUSE();
@@ -130,24 +129,27 @@ PROCESS_THREAD(er_example_server, ev, data)
    * WARNING: Activating twice only means alternate path, not two instances!
    * All static variables are the same for each URI path.
    */
-  rest_activate_resource(&res_hello, "test/hello");
+//  rest_activate_resource(&res_hello, "test/hello");
 /*  rest_activate_resource(&res_mirror, "debug/mirror"); */
 /*  rest_activate_resource(&res_chunks, "test/chunks"); */
-/*  rest_activate_resource(&res_separate, "test/separate"); */
-  rest_activate_resource(&res_push, "test/push");
-  rest_activate_resource(&res_event, "sensors/button");
+//  rest_activate_resource(&res_separate, "test/separate"); 
+//  rest_activate_resource(&res_push, "test/push");
+//  rest_activate_resource(&res_event, "sensors/button");
 /*  rest_activate_resource(&res_sub, "test/sub"); */
 /*  rest_activate_resource(&res_b1_sep_b2, "test/b1sepb2"); */
   
 /* RELAY RESOURCE to be placed here */
   rest_activate_resource(&res_relay, "actuators/relay"); /* relay resource is added to actuators */
   rest_activate_resource(&res_fan, "actuators/fan"); /* relay resource is added to actuators */
+  rest_activate_resource(&res_temp, "sensors/temp"); /* relay resource is added to actuators */
+  rest_activate_resource(&res_humidity, "sensors/humidity"); /* relay resource is added to actuators */
+  rest_activate_resource(&res_light, "sensors/light"); /* relay resource is added to actuators */
 #if PLATFORM_HAS_LEDS
 /*  rest_activate_resource(&res_leds, "actuators/leds"); */
-  rest_activate_resource(&res_toggle, "actuators/toggle");
+ // rest_activate_resource(&res_toggle, "actuators/toggle");
 #endif
 #if PLATFORM_HAS_LIGHT
-  rest_activate_resource(&res_light, "sensors/light"); 
+ // rest_activate_resource(&res_light, "sensors/light"); 
   SENSORS_ACTIVATE(light_sensor);  
 #endif
 /*
@@ -166,20 +168,6 @@ PROCESS_THREAD(er_example_server, ev, data)
 */
 
   /* Define application-specific events here. */
-  while(1) {
-    PROCESS_WAIT_EVENT();
-#if PLATFORM_HAS_BUTTON
-    if(ev == sensors_event && data == &button_sensor) {
-      PRINTF("*******BUTTON*******\n");
-
-      /* Call the event_handler for this application-specific event. */
-      res_event.trigger();
-
-      /* Also call the separate response example handler. */
-      res_separate.resume();
-    }
-#endif /* PLATFORM_HAS_BUTTON */
-  }                             /* while (1) */
 
   PROCESS_END();
 }

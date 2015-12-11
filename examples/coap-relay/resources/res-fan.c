@@ -43,8 +43,8 @@
 #include <string.h>
 #include "rest-engine.h"
 
-//#define RELAY_PIN 2     /* Relay Pin  DIO1*/ 
-//#define PORT_D GPIO_D_BASE
+#define RELAY_PIN 2     /* Relay Pin  DIO1*/ 
+#define PORT_D GPIO_D_BASE
 
 
 #define RELAY_PIN 0

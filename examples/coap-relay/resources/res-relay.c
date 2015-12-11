@@ -44,7 +44,7 @@
 #include "rest-engine.h"
 
 #define RELAY_PIN 2     /* Relay Pin  DIO1*/ 
-#define PORT_D GPIO_D_BASE
+#define PORT_A GPIO_A_BASE
 
 #define DEBUG 0
 #if DEBUG
@@ -76,7 +76,7 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 {
   const char *mode = NULL;
   size_t len = 0;
-  relay_enable(PORT_D, RELAY_PIN); // PUT the right relay pin here
+  relay_enable(PORT_A, RELAY_PIN); // PUT the right relay pin here
  
   //Get mode
   len = REST.get_query_variable(request, "mode", &mode);
@@ -84,7 +84,7 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
    REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "EVENT %lu", event_counter));
   if(strncmp(mode, "on", len) == 0)
   {  
-  	if(relay_status(PORT_D, RELAY_PIN ))    
+  	if(relay_status(PORT_A, RELAY_PIN ))    
         {
 		PRINTF("already relay on \n");
 		const char *msg = "Light already on";
@@ -93,7 +93,7 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 	}
         else 
         {
-		relay_on(PORT_D, RELAY_PIN);
+		relay_on(PORT_A, RELAY_PIN);
 		const char *msg = "Light on";
 		REST.set_response_payload(response, msg, strlen(msg));
                 REST.notify_subscribers(&res_relay);
@@ -101,7 +101,7 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
    }
    else if (strncmp(mode, "off", len) == 0)
    {  
-   	if(!(relay_status(PORT_D, RELAY_PIN )))
+   	if(!(relay_status(PORT_A, RELAY_PIN )))
 	{    
         	PRINTF("already relay off \n");
 		const char *msg = "Light already off";
@@ -110,7 +110,7 @@ res_post_put_handler(void *request, void *response, uint8_t *buffer, uint16_t pr
 	}
         else 
 	{
-        	relay_off(PORT_D, RELAY_PIN);
+        	relay_off(PORT_A, RELAY_PIN);
 		const char *msg = "Light off";
 		REST.set_response_payload(response, msg, strlen(msg));
                 REST.notify_subscribers(&res_relay);
@@ -136,7 +136,7 @@ res_get_handler(void *request, void *response, uint8_t *buffer, uint16_t preferr
         REST.set_response_payload(response, buffer, snprintf((char *)buffer, preferred_size, "EVENT %lu", event_counter));
 
         // observerable resources end
-        if(relay_status(PORT_D, RELAY_PIN ))  
+        if(relay_status(PORT_A, RELAY_PIN ))  
 	{  
         	PRINTF("relay is on \n"); // put response
         	const char *msg = "Light on";
