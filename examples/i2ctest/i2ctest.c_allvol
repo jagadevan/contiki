@@ -64,7 +64,7 @@ PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
 /*---------------------------------------------------------------------------*/
 
-unsigned int pwmDutyCycle = 900;  // Time for which it shud be on    
+unsigned int pwmDutyCycle = 100;  // Time for which it shud be on    
 unsigned int ulperiod = 1000;    // Period 
 int delayIndex = 0;
 
@@ -74,26 +74,24 @@ PROCESS_THREAD(hello_world_process, ev, data)
   PROCESS_BEGIN();
     printf(" \n16-Bit PWM timer ->\n\r");
     printf(" Mode = PWM\n\r");
-     //Arguments :  loadset , match
-    //pwm_driver_static_init(999,50);
-
-    /*   Arguments : timerBaseAddr, timerName,period ,dutyCycle, gpioPortNum, gpioPinNumber */
-    pwm_driver_gen_initialize (GPT_2_BASE, GPTIMER_A,999,50, GPIO_A_NUM, 3);
+     // loadset , match
+    checkthiscode(999,50);
  
+
     while(1)
     {
       	 TimerMatchSet(GPT_2_BASE, GPTIMER_A, pwmDutyCycle++);
 
          if( pwmDutyCycle >= ulperiod - 1)   {
-            pwmDutyCycle = 900;
+            pwmDutyCycle = 100;
 	   }
         
-         if((pwmDutyCycle >= 900) && (pwmDutyCycle <= 975) )  {     // After duty cycle : 975 bulb is off  
+         if((pwmDutyCycle >= 100) && (pwmDutyCycle <= 800) )  {     // After duty cycle : 975 bulb is off  
           // Adding delay to see the brightness change
            for (delayIndex=0; delayIndex<=100000; delayIndex++);
            for (delayIndex=0; delayIndex<=100000; delayIndex++);
            for (delayIndex=0; delayIndex<=100000; delayIndex++);
-           for (delayIndex=0; delayIndex<=100000; delayIndex++);
+           //for (delayIndex=0; delayIndex<=100000; delayIndex++);
  	 }
          //printf(" %d is DutyCycle , %d is ulperiod , timerLoadget =%d \n\r ",pwmDutyCycle,ulperiod, TimerLoadGet(GPTIMER2_BASE, GPTIMER_A)); 
          printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));

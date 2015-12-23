@@ -1125,11 +1125,10 @@ TimerSynchronize(uint32_t ui32Base, uint32_t ui32Timers)
 
 
 
-void checkthiscode (uint32_t period , uint32_t match )
+void pwm_driver_static_init (uint32_t period , uint32_t match )
 {
   /* Enable module clock for the GPTx in Active mode */
   REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
-  
    /* Stop the timer */
    REG(GPT_2_BASE + GPTIMER_CTL) = 0;
    /* Use 16-bit timer */
@@ -1150,43 +1149,96 @@ void checkthiscode (uint32_t period , uint32_t match )
    /* Enable */
    REG(GPTIMER_CTL + GPT_2_BASE ) |= GPTIMER_CTL_TAEN;
 
-
 }
 
-#if 0
 
-void checkthiscode (uint32_t timerBaseAddr, uint32_t timerName, uint32_t ui32period , uint32_t dutyCycle, uint32_t gpioPortNum, uint32_t gpioPinNumber )
+
+int pwm_driver_gen_initialize (uint32_t timerBaseAddr, uint32_t timerName, uint32_t period , uint32_t dutyCycle, uint32_t gpioPortNum, uint32_t gpioPinNumber )
 {
-   /* Enable module clock for the GPTx in Active mode */
-   REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
+   /* Note :  Do not change order to optimize code */
+   int retval = PWM_DRIVER_INIT_SUCCESS;
+   uint32_t timer_enable_reg_bit_mask = 0;
+   uint32_t periph_output_signal_to_pad = 0;   
    
+   /* Validation for pin number and port number  */ 
+   if   (!((gpioPortNum >= GPIO_A_NUM) && (gpioPortNum <= GPIO_D_NUM ) && (gpioPinNumber >= 0) && (gpioPinNumber <= 7)))
+   {    
+	retval = PWM_DRIVER_INIT_FAILED;
+	printf("Validation failed for pin and port number parameter \n");
+        return retval;
+   }
+     
+   /* Enable module clock for the GPTx in Active mode */
+   if  (timerBaseAddr == GPT_0_BASE )
+   {    REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT0;
+	periph_output_signal_to_pad = IOC_PXX_SEL_GPT0_ICP1;
+   	}
+   else if (timerBaseAddr == GPT_1_BASE)
+   {    REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT1;
+	periph_output_signal_to_pad = IOC_PXX_SEL_GPT1_ICP1;
+   	}
+   else if (timerBaseAddr == GPT_2_BASE)
+   {    REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
+	periph_output_signal_to_pad = IOC_PXX_SEL_GPT2_ICP1;
+   	}
+   else if (timerBaseAddr == GPT_3_BASE)
+   {    REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT3;
+	periph_output_signal_to_pad = IOC_PXX_SEL_GPT3_ICP1;
+   	}   
+   else
+   {   	retval = PWM_DRIVER_INIT_FAILED; 
+	printf( "Wrong Timer base address parameter\n");
+        return retval;
+  	}
 
    /* Stop the timer */
    REG(timerBaseAddr + GPTIMER_CTL) = 0;
    
    /* Use 16-bit timer */
    REG(timerBaseAddr + GPTIMER_CFG) = 0x04;
-  
 
-   /* Configure PWM mode */
-   REG(timerBaseAddr + GPTIMER_TAMR) = 0;
-   REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;
-   REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
+   /* Configure PWM mode for repective TIMERA or TIMERB */
+   if ( timerName == GPTIMER_A ) 
+   {
+   	REG(timerBaseAddr + GPTIMER_TAMR) = 0;
+   	REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;
+   	REG(timerBaseAddr + GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
+   	/* Set the start value (period), count down */
+   	REG(timerBaseAddr+ GPTIMER_TAILR) = period;
+   	/* Set the deassert period */
+   	REG(timerBaseAddr + GPTIMER_TAMATCHR) = dutyCycle;
+        timer_enable_reg_bit_mask = GPTIMER_CTL_TAEN;
+   	}
+   else if ( timerName == GPTIMER_B )
+   {
+   	REG(timerBaseAddr + GPTIMER_TBMR) = 0;
+   	REG(timerBaseAddr + GPTIMER_TBMR) |= GPTIMER_TBMR_TBAMS;
+   	REG(timerBaseAddr + GPTIMER_TBMR) |= GPTIMER_TBMR_TBMR_PERIODIC;
+   	/* Set the start value (period), count down */
+   	REG(timerBaseAddr+ GPTIMER_TBILR) = period;
+   	/* Set the deassert period */
+   	REG(timerBaseAddr + GPTIMER_TBMATCHR) = dutyCycle;
+        timer_enable_reg_bit_mask = GPTIMER_CTL_TBEN;
+  	}
+   else
+   {   	
+    	retval = PWM_DRIVER_INIT_FAILED; 
+	printf( "Wrong Timer Name parameter\n");
+        return retval;
+  	}
+
+   /* Configure pin for PWM */
+   ioc_set_sel(gpioPortNum, gpioPinNumber, periph_output_signal_to_pad);
+   ioc_set_over(gpioPortNum, gpioPinNumber, IOC_OVERRIDE_OE);
+   GPIO_PERIPHERAL_CONTROL(GPIO_PORT_TO_BASE(gpioPortNum), GPIO_PIN_MASK(gpioPinNumber));
    
-   /* Set the start value (period), count down */
-   REG(timerBaseAddr+ GPTIMER_TAILR) = 999;
-   /* Set the deassert period */
-   REG(timerBaseAddr + GPTIMER_TAMATCHR) = 50;
-   /* Configure pin */
-   ioc_set_sel(GPIO_A_NUM, 3, IOC_PXX_SEL_GPT2_ICP1);
-   ioc_set_over(GPIO_A_NUM, 3, IOC_OVERRIDE_OE);
-   GPIO_PERIPHERAL_CONTROL(GPIO_PORT_TO_BASE(GPIO_A_NUM), GPIO_PIN_MASK(3));
-   /* Enable */
-   REG(GPTIMER_CTL + GPT_2_BASE ) |= GPTIMER_CTL_TAEN;
-
+   /* Enable the appropriate TimerA/B */
+   REG(GPTIMER_CTL + timerBaseAddr ) |= timer_enable_reg_bit_mask;
+  
+   return retval;
 }
 
-#endif
+
 
 
 //*****************************************************************************
