@@ -59,17 +59,26 @@ CONTIKI_CPU_SOURCEFILES += pka.c bignum-driver.c ecc-driver.c ecc-algorithm.c
 CONTIKI_CPU_SOURCEFILES += ecc-curve.c
 CONTIKI_CPU_SOURCEFILES += dbg.c ieee-addr.c
 CONTIKI_CPU_SOURCEFILES += slip-arch.c slip.c
+<<<<<<< HEAD
 CONTIKI_CPU_SOURCEFILES += i2c.c cc2538-temp-sensor.c vdd3-sensor.c
 CONTIKI_CPU_SOURCEFILES += cfs-coffee.c cfs-coffee-arch.c pwm.c
 CONTIKI_CPU_SOURCEFILES += i2c.c cc2538-temp-sensor.c vdd3-sensor.c als-sensor.c
 
 
+=======
+CONTIKI_CPU_SOURCEFILES += i2c.c cc2538-temp-sensor.c vdd3-sensor.c als-sensor.c
+
+>>>>>>> 8aa6a57ba3761bb51da131a228fea8e8de16f77d
 CONTIKI_ADDN_DRIVERFILES += gptimer.c 
 CONTIKI_ADDN_DRIVERFILES += debug_a.c interrupt_a.c
 CONTIKI_ADDN_DRIVERFILES += systick_a.c cpu_a.c udma_a.c ssi_a.c i2c_a.c ioc_a.c sleepmode_a.c
 CONTIKI_ADDN_DRIVERFILES += adc_a.c flash_a.c pka_a.c watchdog_a.c sha256_a.c ccm_a.c aes_a.c
 CONTIKI_ADDN_DRIVERFILES += uart_a.c sys_ctrl_a.c gpio_a.c
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8aa6a57ba3761bb51da131a228fea8e8de16f77d
 
 DEBUG_IO_SOURCEFILES += dbg-printf.c dbg-snprintf.c dbg-sprintf.c strformat.c
 
