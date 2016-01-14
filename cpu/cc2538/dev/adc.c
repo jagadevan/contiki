@@ -95,5 +95,3 @@ adc_get(uint8_t channel, uint8_t ref, uint8_t div)
   /* Return conversion result */
   return res;
 }
-
-/** @} */

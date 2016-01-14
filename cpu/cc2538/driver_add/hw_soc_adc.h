@@ -264,4 +264,3 @@
 
 
 #endif // __HW_SOC_ADC_H__
-

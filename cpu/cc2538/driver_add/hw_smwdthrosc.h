@@ -261,4 +261,3 @@
 
 
 #endif // __HW_SMWDTHROSC_H__
-

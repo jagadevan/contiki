@@ -1984,4 +1984,3 @@ PKAECCAddGetResult(tECPt* ptOutEcPt, uint32_t ui32ResVectorLoc)
 //! @}
 //
 //*****************************************************************************
-

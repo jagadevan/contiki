@@ -1028,4 +1028,3 @@
 
 
 #endif // __HW_GPTIMER_H__
-

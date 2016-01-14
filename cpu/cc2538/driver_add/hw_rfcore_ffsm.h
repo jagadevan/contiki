@@ -437,4 +437,3 @@
 
 
 #endif // __HW_RFCORE_FFSM_H__
-

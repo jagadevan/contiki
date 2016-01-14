@@ -82,4 +82,3 @@
 #define CC_TESTCTRL_BASE        0x44010000  // CCTEST 
 
 #endif // __HW_MEMMAP_H__
-
