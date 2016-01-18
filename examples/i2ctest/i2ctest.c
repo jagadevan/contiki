@@ -41,8 +41,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h> /* For printf() */
-#include "hw_ints.h"
-#include "hw_memmap.h"
+//#include "hw_ints.h"
+//#include "hw_memmap.h"
 #include "gpio.h"
 #include "interrupt.h"
 #include "ioc.h"
@@ -76,13 +76,15 @@ PROCESS_THREAD(hello_world_process, ev, data)
     printf(" Mode = PWM\n\r");
      //Arguments :  loadset , match
     //pwm_driver_static_init(999,50);
+    
+    pwm_driver_pwm_mode(15000,16666);
 
     /*   Arguments : timerBaseAddr, timerName,period ,dutyCycle, gpioPortNum, gpioPinNumber */
-    pwm_driver_gen_initialize (GPT_2_BASE, GPTIMER_A,999,50, GPIO_A_NUM, 3);
+  //  pwm_driver_gen_initialize (GPT_2_BASE, GPTIMER_A,999,50, GPIO_A_NUM, 3);
  
     while(1)
     {
-      	 TimerMatchSet(GPT_2_BASE, GPTIMER_A, pwmDutyCycle++);
+/*      	 TimerMatchSet(GPT_2_BASE, GPTIMER_A, pwmDutyCycle++);
 
          if( pwmDutyCycle >= ulperiod - 1)   {
             pwmDutyCycle = 900;
@@ -98,7 +100,10 @@ PROCESS_THREAD(hello_world_process, ev, data)
          //printf(" %d is DutyCycle , %d is ulperiod , timerLoadget =%d \n\r ",pwmDutyCycle,ulperiod, TimerLoadGet(GPTIMER2_BASE, GPTIMER_A)); 
          printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
 	 //SysCtlDelay(50000);
+*/
 
+
+printf(" %d is DutyCycle , %d is ulperiod , timerValueget =%d \n\r ",pwmDutyCycle,ulperiod, TimerValueGet(GPTIMER2_BASE, GPTIMER_A));
     } // end of while
  
   PROCESS_END();

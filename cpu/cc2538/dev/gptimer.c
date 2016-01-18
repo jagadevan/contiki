@@ -1130,9 +1130,14 @@ void pwm_driver_static_init (uint32_t period , uint32_t match )
   /* Enable module clock for the GPTx in Active mode */
   REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
    /* Stop the timer */
-   REG(GPT_2_BASE + GPTIMER_CTL) = 0;
+   /* Step1 : Ensure the timer is disabled (the TnEN bit is cleared) before making any changes */
+   REG(GPT_2_BASE + GPTIMER_CTL) = 0;    // step 1
+
    /* Use 16-bit timer */
-   REG(GPT_2_BASE + GPTIMER_CFG) = 0x04;
+   /* Step2 : Write the GPTM Configuration (GPTIMER_CFG) register with a value of 0x0000.0004.*/
+   REG(GPT_2_BASE + GPTIMER_CFG) = 0x04; // step 2
+
+
    /* Configure PWM mode */
    REG(GPT_2_BASE + GPTIMER_TAMR) = 0;
    REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;
@@ -1239,6 +1244,56 @@ int pwm_driver_gen_initialize (uint32_t timerBaseAddr, uint32_t timerName, uint3
 }
 
 
+
+void pwm_driver_pwm_mode (uint32_t period , uint32_t match )
+{
+  /* Enable module clock for the GPTx in Active mode */
+  REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT2;
+   /* Stop the timer */
+   /* Step1 : Ensure the timer is disabled (the TnEN bit is cleared) before making any changes */
+   REG(GPT_2_BASE + GPTIMER_CTL) = 0;    // step 1
+
+
+   /* Use 16-bit timer */
+   /* Step2 : Write the GPTM Configuration (GPTIMER_CFG) register with a value of 0x0000.0004.*/
+   REG(GPT_2_BASE + GPTIMER_CFG) = 0x04; // step 2
+
+   /* Configure PWM mode */
+/* Step3 :In the GPTM Timer Mode (GPTIMER_TnMR) register, write the TnCMR field to 0x1 and the TnMR field to 0x2  */
+   REG(GPT_2_BASE + GPTIMER_TAMR) = 0;
+   //REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS;  // changed
+   REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TACMR;
+   REG(GPT_2_BASE + GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
+
+/* Step4 :Configure the output state of the PWM signal (whether or not it is inverted) in the TnPWML field of the GPTM Control (GPTIMER_CTL) register. */
+   REG(GPT_2_BASE + GPTIMER_CTL) |= GPTIMER_CTL_TAPWML;
+
+/* Step5 : If a prescaler is to be used, write the prescale value to the GPTM Timer n Prescale Register
+(GPTIMER_TnPR). */
+
+/* Step6 : If PWM interrupts are used, configure the interrupt condition in the TnEVENT field in the
+GPTIMER_CTL register and enable the interrupts by setting the TnPWMIE bit in the GPTIMER_TnMR
+register */
+
+/* Step7 :  Load the timer start value into the GPTM Timer n Interval Load (GPTIMER_TnILR) register */
+   /* Set the start value (period), count down */
+   REG(GPT_2_BASE+ GPTIMER_TAILR) = period ; //999;
+
+/* Step8 :  Load the GPTM Timer n Match (GPTIMER_TnMATCHR) register with the match value */
+   /* Set the deassert period */
+   REG(GPT_2_BASE + GPTIMER_TAMATCHR) = match;//50;
+
+/* Step9 : Set the TnEN bit in the GPTM Control (GPTIMER_CTL) register to enable the timer and begin
+generation of the output PWM signal */
+
+   /* Configure pin */
+   ioc_set_sel(GPIO_A_NUM, 3, IOC_PXX_SEL_GPT2_ICP1);
+   ioc_set_over(GPIO_A_NUM, 3, IOC_OVERRIDE_OE);
+   GPIO_PERIPHERAL_CONTROL(GPIO_PORT_TO_BASE(GPIO_A_NUM), GPIO_PIN_MASK(3));
+   /* Enable */
+   REG(GPTIMER_CTL + GPT_2_BASE ) |= GPTIMER_CTL_TAEN;
+
+}
 
 
 //*****************************************************************************

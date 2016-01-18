@@ -467,6 +467,7 @@ extern uint32_t TimerIntStatus(uint32_t ui32Base, bool bMasked);
 extern void TimerIntClear(uint32_t ui32Base, uint32_t ui32IntFlags);
 extern void TimerSynchronize(uint32_t ui32Base, uint32_t ui32Timers);
 extern void pwm_driver_static_init  (uint32_t period , uint32_t match );
+void pwm_driver_pwm_mode (uint32_t period , uint32_t match );
 extern int pwm_driver_gen_initialize (uint32_t timerBaseAddr, uint32_t timerName, uint32_t period , uint32_t dutyCycle, uint32_t gpioPortNum, uint32_t gpioPinNumber );
 
 # define PWM_DRIVER_INIT_SUCCESS 1
