@@ -26,6 +26,7 @@
 *.c64
 *.cc2538dk
 *.zoul
+*.openmote
 *.jn516x
 *.srf06-cc26xx
 *.ev-aducrf101mkxz

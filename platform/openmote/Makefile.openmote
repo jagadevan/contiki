@@ -28,7 +28,6 @@ include $(CONTIKI_CPU)/Makefile.cc2538
 
 MODULES += core/net core/net/mac \
            core/net/mac/contikimac \
-           core/net/mac/tsch \
            core/net/llsec
            
 
