@@ -127,7 +127,7 @@ else
   STRIP    = $(CROSS_COMPILE)strip
 
   ifdef WERROR
-    CFLAGSWERROR ?= -Werror
+    CFLAGSWERROR ?= -Werror -pedantic -std=c99 -Werror
   endif
   
   CFLAGSNO ?= -Wall -g $(CFLAGSWERROR)

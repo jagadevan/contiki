@@ -24,7 +24,7 @@ static char send_udp = 0;
 static const char *prompt = "contiki> ";
 
 /*---------------------------------------------------------------------------*/
-static char *
+static char * CC_FASTCALL
 n(uint16_t num, char *ptr)
 {
   uint16_t d;

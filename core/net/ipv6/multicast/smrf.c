@@ -81,7 +81,7 @@ mcast_fwd(void *p)
   uip_len = mcast_len;
   UIP_IP_BUF->ttl--;
   tcpip_output(NULL);
-  uip_clear_buf();
+  uip_len = 0;
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t

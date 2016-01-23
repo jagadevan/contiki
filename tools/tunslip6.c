@@ -34,7 +34,7 @@
 
  /* Below define allows importing saved output into Wireshark as "Raw IP" packet type */
 #define WIRESHARK_IMPORT_FORMAT 1
-
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -56,20 +56,13 @@
 
 #include <err.h>
 
-#include "tools-utils.h"
-
-#ifndef BAUDRATE
-#define BAUDRATE B115200
-#endif
-speed_t b_rate = BAUDRATE;
-
 int verbose = 1;
 const char *ipaddr;
 const char *netmask;
 int slipfd = 0;
 uint16_t basedelay=0,delaymsec=0;
 uint32_t startsec,startmsec,delaystartsec,delaystartmsec;
-int timestamp = 0, flowcontrol=0, showprogress=0, flowcontrol_xonxoff=0;
+int timestamp = 0, flowcontrol=0;
 
 int ssystem(const char *fmt, ...)
      __attribute__((__format__ (__printf__, 1, 2)));
@@ -78,13 +71,10 @@ void write_to_serial(int outfd, void *inbuf, int len);
 void slip_send(int fd, unsigned char c);
 void slip_send_char(int fd, unsigned char c);
 
-#define PROGRESS(s) if(showprogress) fprintf(stderr, s)
+//#define PROGRESS(s) fprintf(stderr, s)
+#define PROGRESS(s) do { } while (0)
 
 char tundev[1024] = { "" };
-
-/* IPv6 required minimum MTU */
-#define MIN_DEVMTU 1500
-int devmtu = MIN_DEVMTU;
 
 int
 ssystem(const char *fmt, ...) __attribute__((__format__ (__printf__, 1, 2)));
@@ -102,15 +92,11 @@ ssystem(const char *fmt, ...)
   return system(cmd);
 }
 
-#define SLIP_END      0300
-#define SLIP_ESC      0333
-#define SLIP_ESC_END  0334
-#define SLIP_ESC_ESC  0335
+#define SLIP_END     0300
+#define SLIP_ESC     0333
+#define SLIP_ESC_END 0334
+#define SLIP_ESC_ESC 0335
 
-#define SLIP_ESC_XON  0336
-#define SLIP_ESC_XOFF 0337
-#define XON           17
-#define XOFF          19
 
 /* get sockaddr, IPv4 or IPv6: */
 void *
@@ -130,7 +116,7 @@ stamptime(void)
   time_t t;
   struct tm *tmp;
   char timec[20];
-
+ 
   gettimeofday(&tv, NULL) ;
   msecs=tv.tv_usec/1000;
   secs=tv.tv_sec;
@@ -201,7 +187,7 @@ serial_to_tun(FILE *inslip, int outfd)
     clearerr(inslip);
     return;
   }
-  PROGRESS(".");
+  /*  fprintf(stderr, ".");*/
   switch(c) {
   case SLIP_END:
     if(inbufptr > 0) {
@@ -239,7 +225,8 @@ serial_to_tun(FILE *inslip, int outfd)
           inet_pton(AF_INET6, ipaddr, &addr);
           if(timestamp) stamptime();
           fprintf(stderr,"*** Address:%s => %02x%02x:%02x%02x:%02x%02x:%02x%02x\n",
-		 ipaddr,
+ //         printf("*** Address:%s => %02x%02x:%02x%02x:%02x%02x:%02x%02x\n",
+		 ipaddr, 
 		 addr.s6_addr[0], addr.s6_addr[1],
 		 addr.s6_addr[2], addr.s6_addr[3],
 		 addr.s6_addr[4], addr.s6_addr[5],
@@ -253,7 +240,7 @@ serial_to_tun(FILE *inslip, int outfd)
 	  slip_send(slipfd, SLIP_END);
         }
 #define DEBUG_LINE_MARKER '\r'
-      } else if(uip.inbuf[0] == DEBUG_LINE_MARKER) {
+      } else if(uip.inbuf[0] == DEBUG_LINE_MARKER) {    
 	fwrite(uip.inbuf + 1, inbufptr - 1, 1, stdout);
       } else if(is_sensible_string(uip.inbuf, inbufptr)) {
         if(verbose==1) {   /* strings already echoed below for verbose>1 */
@@ -302,12 +289,6 @@ serial_to_tun(FILE *inslip, int outfd)
     case SLIP_ESC_ESC:
       c = SLIP_ESC;
       break;
-    case SLIP_ESC_XON:
-      c = XON;
-      break;
-    case SLIP_ESC_XOFF:
-      c = XOFF;
-      break;
     }
     /* FALLTHROUGH */
   default:
@@ -329,7 +310,7 @@ serial_to_tun(FILE *inslip, int outfd)
         if(c=='\n') if(timestamp) stamptime();
       }
     }
-
+    
     break;
   }
 
@@ -350,22 +331,6 @@ slip_send_char(int fd, unsigned char c)
   case SLIP_ESC:
     slip_send(fd, SLIP_ESC);
     slip_send(fd, SLIP_ESC_ESC);
-    break;
-  case XON:
-    if(flowcontrol_xonxoff) {
-      slip_send(fd, SLIP_ESC);
-      slip_send(fd, SLIP_ESC_XON);
-    } else {
-      slip_send(fd, c);
-    }
-    break;
-  case XOFF:
-    if(flowcontrol_xonxoff) {
-      slip_send(fd, SLIP_ESC);
-      slip_send(fd, SLIP_ESC_XOFF);
-    } else {
-      slip_send(fd, c);
-    }
     break;
   default:
     slip_send(fd, c);
@@ -393,7 +358,7 @@ void
 slip_flushbuf(int fd)
 {
   int n;
-
+  
   if(slip_empty()) {
     return;
   }
@@ -452,22 +417,6 @@ write_to_serial(int outfd, void *inbuf, int len)
       slip_send(outfd, SLIP_ESC);
       slip_send(outfd, SLIP_ESC_ESC);
       break;
-    case XON:
-      if(flowcontrol_xonxoff) {
-        slip_send(outfd, SLIP_ESC);
-        slip_send(outfd, SLIP_ESC_XON);
-      } else {
-        slip_send(outfd, p[i]);
-      }
-      break;
-    case XOFF:
-      if(flowcontrol_xonxoff) {
-        slip_send(outfd, SLIP_ESC);
-        slip_send(outfd, SLIP_ESC_XOFF);
-      } else {
-        slip_send(outfd, p[i]);
-      }
-      break;
     default:
       slip_send(outfd, p[i]);
       break;
@@ -495,6 +444,11 @@ tun_to_serial(int infd, int outfd)
   return size;
 }
 
+#ifndef BAUDRATE
+#define BAUDRATE B115200
+#endif
+speed_t b_rate = BAUDRATE;
+
 void
 stty_telos(int fd)
 {
@@ -515,12 +469,6 @@ stty_telos(int fd)
     tty.c_cflag |= CRTSCTS;
   else
     tty.c_cflag &= ~CRTSCTS;
-  tty.c_iflag &= ~IXON;
-  if(flowcontrol_xonxoff) {
-    tty.c_iflag |= IXOFF | IXANY;
-  } else {
-    tty.c_iflag &= ~IXOFF & ~IXANY;
-  }
   tty.c_cflag &= ~HUPCL;
   tty.c_cflag &= ~CLOCAL;
 
@@ -566,7 +514,6 @@ tun_alloc(char *dev, int tap)
   int fd, err;
 
   if( (fd = open("/dev/net/tun", O_RDWR)) < 0 ) {
-    perror("can not open /dev/net/tun");
     return -1;
   }
 
@@ -583,12 +530,8 @@ tun_alloc(char *dev, int tap)
 
   if((err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ) {
     close(fd);
-    fprintf(stderr, "can not tunsetiff to %s (flags=%08x): %s\n", dev, ifr.ifr_flags,
-            strerror(errno));
     return err;
   }
-
-  /* get resulting tunnel name */
   strcpy(dev, ifr.ifr_name);
   return fd;
 }
@@ -663,7 +606,7 @@ ifconf(const char *tundev, const char *ipaddr)
 {
 #ifdef linux
   if (timestamp) stamptime();
-  ssystem("ifconfig %s inet `hostname` mtu %d up", tundev, devmtu);
+  ssystem("ifconfig %s inet `hostname` up", tundev);
   if (timestamp) stamptime();
   ssystem("ifconfig %s add %s", tundev, ipaddr);
 
@@ -693,7 +636,7 @@ ifconf(const char *tundev, const char *ipaddr)
       } else {
 	cc=0;
 	digit = c-'0';
-	if (digit > 9)
+	if (digit > 9) 
 	  digit = 10 + (c & 0xdf) - 'A';
 	a[ai] = (a[ai] << 4) + digit;
       }
@@ -724,7 +667,7 @@ ifconf(const char *tundev, const char *ipaddr)
 		prefix = "64";
 	}
     if (timestamp) stamptime();
-    ssystem("ifconfig %s inet6 mtu %d up", tundev, devmtu);
+    ssystem("ifconfig %s inet6 up", tundev );
     if (timestamp) stamptime();
     ssystem("ifconfig %s inet6 %s add", tundev, ipaddr );
     if (timestamp) stamptime();
@@ -733,7 +676,7 @@ ifconf(const char *tundev, const char *ipaddr)
   }
 #else
   if (timestamp) stamptime();
-  ssystem("ifconfig %s inet `hostname` %s mtu %d up", tundev, ipaddr, devmtu);
+  ssystem("ifconfig %s inet `hostname` %s up", tundev, ipaddr);
   if (timestamp) stamptime();
   ssystem("sysctl -w net.inet.ip.forwarding=1");
 #endif /* !linux */
@@ -755,14 +698,13 @@ main(int argc, char **argv)
   const char *port = NULL;
   const char *prog;
   int baudrate = -2;
-  int ipa_enable = 0;
   int tap = 0;
   slipfd = 0;
 
   prog = argv[0];
   setvbuf(stdout, NULL, _IOLBF, 0); /* Line buffered output. */
 
-  while((c = getopt(argc, argv, "B:HILPhXM:s:t:v::d::a:p:T")) != -1) {
+  while((c = getopt(argc, argv, "B:HLhs:t:v::d::a:p:T")) != -1) {
     switch(c) {
     case 'B':
       baudrate = atoi(optarg);
@@ -771,23 +713,9 @@ main(int argc, char **argv)
     case 'H':
       flowcontrol=1;
       break;
-
-    case 'X':
-      flowcontrol_xonxoff=1;
-      break;
-
+ 
     case 'L':
       timestamp=1;
-      break;
-
-    case 'M':
-      devmtu=atoi(optarg);
-      if(devmtu < MIN_DEVMTU) {
-        devmtu = MIN_DEVMTU;
-      }
-
-    case 'P':
-      showprogress=1;
       break;
 
     case 's':
@@ -796,11 +724,6 @@ main(int argc, char **argv)
       } else {
 	siodev = optarg;
       }
-      break;
-
-    case 'I':
-      ipa_enable = 1;
-      fprintf(stderr, "Will inquire about IP address using IPA=\n");
       break;
 
     case 't':
@@ -832,7 +755,7 @@ main(int argc, char **argv)
     case 'T':
       tap = 1;
       break;
-
+ 
     case '?':
     case 'h':
     default:
@@ -845,11 +768,8 @@ fprintf(stderr," -B baudrate    9600,19200,38400,57600,115200 (default),230400,4
 fprintf(stderr," -B baudrate    9600,19200,38400,57600,115200 (default),230400\n");
 #endif
 fprintf(stderr," -H             Hardware CTS/RTS flow control (default disabled)\n");
-fprintf(stderr," -I             Inquire IP address\n");
-fprintf(stderr," -X             Software XON/XOFF flow control (default disabled)\n");
 fprintf(stderr," -L             Log output format (adds time stamps)\n");
 fprintf(stderr," -s siodev      Serial device (default /dev/ttyUSB0)\n");
-fprintf(stderr," -M             Interface MTU (default and min: 1280)\n");
 fprintf(stderr," -T             Make tap interface (default is tun interface)\n");
 fprintf(stderr," -t tundev      Name of interface (default tap0 or tun0)\n");
 fprintf(stderr," -v[level]      Verbosity level\n");
@@ -877,11 +797,38 @@ exit(1);
   }
   ipaddr = argv[1];
 
-  if(baudrate != -2) { /* -2: use default baudrate */
-    b_rate = select_baudrate(baudrate);
-    if(b_rate == 0) {
-      err(1, "unknown baudrate %d", baudrate);
-    }
+  switch(baudrate) {
+  case -2:
+    break;			/* Use default. */
+  case 9600:
+    b_rate = B9600;
+    break;
+  case 19200:
+    b_rate = B19200;
+    break;
+  case 38400:
+    b_rate = B38400;
+    break;
+  case 57600:
+    b_rate = B57600;
+    break;
+  case 115200:
+    b_rate = B115200;
+    break;
+  case 230400:
+    b_rate = B230400;
+    break;
+#ifndef __APPLE__
+  case 460800:
+    b_rate = B460800;
+    break;
+  case 921600:
+    b_rate = B921600;
+    break;
+#endif
+  default:
+    err(1, "unknown baudrate %d", baudrate);
+    break;
   }
 
   if(*tundev == '\0') {
@@ -969,7 +916,7 @@ exit(1);
   if(inslip == NULL) err(1, "main: fdopen");
 
   tunfd = tun_alloc(tundev, tap);
-  if(tunfd == -1) err(1, "main: open /dev/tun");
+  if(tunfd == -1) err(1, "main: open");
   if (timestamp) stamptime();
   fprintf(stderr, "opened %s device ``/dev/%s''\n",
           tap ? "tap" : "tun", tundev);
@@ -986,15 +933,16 @@ exit(1);
     FD_ZERO(&rset);
     FD_ZERO(&wset);
 
-    if(got_sigalarm && ipa_enable) {
-      /* Send "?IPA". */
-      slip_send(slipfd, '?');
-      slip_send(slipfd, 'I');
-      slip_send(slipfd, 'P');
-      slip_send(slipfd, 'A');
-      slip_send(slipfd, SLIP_END);
-      got_sigalarm = 0;
-    }
+/* do not send IPA all the time... - add get MAC later... */
+/*     if(got_sigalarm) { */
+/*       /\* Send "?IPA". *\/ */
+/*       slip_send(slipfd, '?'); */
+/*       slip_send(slipfd, 'I'); */
+/*       slip_send(slipfd, 'P'); */
+/*       slip_send(slipfd, 'A'); */
+/*       slip_send(slipfd, SLIP_END); */
+/*       got_sigalarm = 0; */
+/*     } */
 
     if(!slip_empty()) {		/* Anything to flush? */
       FD_SET(slipfd, &wset);
@@ -1002,7 +950,7 @@ exit(1);
 
     FD_SET(slipfd, &rset);	/* Read from slip ASAP! */
     if(slipfd > maxfd) maxfd = slipfd;
-
+    
     /* We only have one packet at a time queued for slip output. */
     if(slip_empty()) {
       FD_SET(tunfd, &rset);
@@ -1016,12 +964,12 @@ exit(1);
       if(FD_ISSET(slipfd, &rset)) {
         serial_to_tun(inslip, tunfd);
       }
-
+      
       if(FD_ISSET(slipfd, &wset)) {
 	slip_flushbuf(slipfd);
-	if(ipa_enable) sigalarm_reset();
+	sigalarm_reset();
       }
-
+ 
       /* Optional delay between outgoing packets */
       /* Base delay times number of 6lowpan fragments to be sent */
       if(delaymsec) {
@@ -1037,7 +985,7 @@ exit(1);
         if(slip_empty() && FD_ISSET(tunfd, &rset)) {
           size=tun_to_serial(tunfd, slipfd);
           slip_flushbuf(slipfd);
-          if(ipa_enable) sigalarm_reset();
+          sigalarm_reset();
           if(basedelay) {
             struct timeval tv;
             gettimeofday(&tv, NULL) ;

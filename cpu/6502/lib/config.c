@@ -43,7 +43,7 @@
 
 /*-----------------------------------------------------------------------------------*/
 #if LOG_CONF_ENABLED
-static char *
+static char * CC_FASTCALL
 ipaddrtoa(uip_ipaddr_t *ipaddr, char *buffer)
 {
   char *ptr = buffer;
@@ -59,7 +59,7 @@ ipaddrtoa(uip_ipaddr_t *ipaddr, char *buffer)
 }
 #endif /* LOG_CONF_ENABLED */
 /*-----------------------------------------------------------------------------------*/
-struct ethernet_config *
+struct ethernet_config * CC_FASTCALL
 config_read(char *filename)
 {
   static struct {

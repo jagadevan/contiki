@@ -222,15 +222,13 @@ tun_init()
 }
 
 /*---------------------------------------------------------------------------*/
-static int
+void
 tun_output(uint8_t *data, int len)
 {
   /* fprintf(stderr, "*** Writing to tun...%d\n", len); */
   if(write(tunfd, data, len) != len) {
     err(1, "serial_to_tun: write");
-    return -1;
   }
-  return 0;
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -248,14 +246,13 @@ init(void)
 {
 }
 /*---------------------------------------------------------------------------*/
-static int
+static void
 output(void)
 {
   PRINTF("SUT: %u\n", uip_len);
   if(uip_len > 0) {
-    return tun_output(&uip_buf[UIP_LLH_LEN], uip_len);
+    tun_output(&uip_buf[UIP_LLH_LEN], uip_len);
   }
-  return 0;
 }
 
 

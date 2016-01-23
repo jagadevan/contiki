@@ -83,9 +83,7 @@ main(void)
   rebootafterexit();
 #endif /* WITH_REBOOT */
 
-#if WITH_80COL
   videomode(VIDEOMODE_80COL);
-#endif /* WITH_80COL */
 
   process_init();
 

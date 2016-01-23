@@ -342,7 +342,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 
   /* In sniffer or sneezr mode we don't ever send anything */
   if ((usbstick_mode.sendToRf == 0) || (usbstick_mode.sneeze != 0)) {
-    uip_clear_buf();
+    uip_len = 0;
     return;
   }
 
@@ -354,7 +354,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 #if !RF230BB
     usb_eth_stat.txbad++;
 #endif
-    uip_clear_buf();
+    uip_len = 0;
     return;
   }
 
@@ -375,7 +375,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 #if !RF230BB
     usb_eth_stat.txbad++;
 #endif
-    uip_clear_buf();
+    uip_len = 0;
     return;
   } else {
 
@@ -409,7 +409,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 #if UIP_CONF_SIMPLE_JACKDAW_ADDR_TRANS
   else {
         //Not addressed to us
-        uip_clear_buf();
+        uip_len = 0;
         return;
   }
 #else
@@ -422,7 +422,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 #if !RF230BB
       usb_eth_stat.txbad++;
 #endif
-      uip_clear_buf();
+      uip_len = 0;
       return;
     }
     PRINTF(" translated OK\n\r");
@@ -463,7 +463,7 @@ void mac_ethernetToLowpan(uint8_t * ethHeader)
 #if !RF230BB
   usb_eth_stat.txok++;
 #endif
-  uip_clear_buf();
+  uip_len = 0;
 
 }
 
@@ -543,7 +543,7 @@ void mac_LowpanToEthernet(void)
 #if !RF230BB
   usb_eth_stat.rxok++;
 #endif
-  uip_clear_buf();
+  uip_len = 0;
 }
 
 /**

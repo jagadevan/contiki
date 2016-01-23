@@ -101,7 +101,7 @@ static uint8_t max_pm;
 #ifdef LPM_CONF_PERIPH_PERMIT_PM1_FUNCS_MAX
 #define LPM_PERIPH_PERMIT_PM1_FUNCS_MAX LPM_CONF_PERIPH_PERMIT_PM1_FUNCS_MAX
 #else
-#define LPM_PERIPH_PERMIT_PM1_FUNCS_MAX 4
+#define LPM_PERIPH_PERMIT_PM1_FUNCS_MAX 3
 #endif
 
 static lpm_periph_permit_pm1_func_t
@@ -128,7 +128,8 @@ periph_permit_pm1(void)
 static void
 enter_pm0(void)
 {
-  ENERGEST_SWITCH(ENERGEST_TYPE_CPU, ENERGEST_TYPE_LPM);
+  ENERGEST_OFF(ENERGEST_TYPE_CPU);
+  ENERGEST_ON(ENERGEST_TYPE_LPM);
 
   /* We are only interested in IRQ energest while idle or in LPM */
   ENERGEST_IRQ_RESTORE(irq_energest);
@@ -146,7 +147,8 @@ enter_pm0(void)
   /* Remember IRQ energest for next pass */
   ENERGEST_IRQ_SAVE(irq_energest);
 
-  ENERGEST_SWITCH(ENERGEST_TYPE_LPM, ENERGEST_TYPE_CPU);
+  ENERGEST_ON(ENERGEST_TYPE_CPU);
+  ENERGEST_OFF(ENERGEST_TYPE_LPM);
 }
 /*---------------------------------------------------------------------------*/
 static void
@@ -236,7 +238,8 @@ lpm_exit()
   /* Remember IRQ energest for next pass */
   ENERGEST_IRQ_SAVE(irq_energest);
 
-  ENERGEST_SWITCH(ENERGEST_TYPE_LPM, ENERGEST_TYPE_CPU);
+  ENERGEST_ON(ENERGEST_TYPE_CPU);
+  ENERGEST_OFF(ENERGEST_TYPE_LPM);
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -309,7 +312,8 @@ lpm_enter()
 
   /* We are only interested in IRQ energest while idle or in LPM */
   ENERGEST_IRQ_RESTORE(irq_energest);
-  ENERGEST_SWITCH(ENERGEST_TYPE_CPU, ENERGEST_TYPE_LPM);
+  ENERGEST_OFF(ENERGEST_TYPE_CPU);
+  ENERGEST_ON(ENERGEST_TYPE_LPM);
 
   /* Remember the current time so we can keep stats when we wake up */
   if(LPM_CONF_STATS) {
@@ -335,7 +339,8 @@ lpm_enter()
 
     /* Remember IRQ energest for next pass */
     ENERGEST_IRQ_SAVE(irq_energest);
-    ENERGEST_SWITCH(ENERGEST_TYPE_LPM, ENERGEST_TYPE_CPU);
+    ENERGEST_ON(ENERGEST_TYPE_CPU);
+    ENERGEST_OFF(ENERGEST_TYPE_LPM);
   } else {
     /* All clear. Assert WFI and drop to PM1/2. This is now un-interruptible */
     assert_wfi();

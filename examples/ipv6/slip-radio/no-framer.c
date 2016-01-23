@@ -124,5 +124,6 @@ parse(void)
 const struct framer no_framer = {
   hdr_length,
   create,
+  framer_canonical_create_and_secure,
   parse
 };

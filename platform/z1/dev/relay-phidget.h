@@ -44,6 +44,6 @@ void relay_enable(uint8_t pin);
 
 void relay_on();
 void relay_off();
-int8_t relay_toggle();
+int8_t relay_toogle();
 
 #endif /* RELAY_PHIDGET_H_ */

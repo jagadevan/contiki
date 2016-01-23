@@ -68,7 +68,6 @@ void usb_isr(void) WEAK_ALIAS(default_handler);
 void uart0_isr(void) WEAK_ALIAS(default_handler);
 void uart1_isr(void) WEAK_ALIAS(default_handler);
 void crypto_isr(void);
-void pka_isr(void);
 
 /* Boot Loader Backdoor selection */
 #if FLASH_CCA_CONF_BOOTLDR_BACKDOOR
@@ -272,7 +271,7 @@ void(*const vectors[])(void) =
   cc2538_rf_rx_tx_isr,        /* 157 RFCORE RX/TX */
   cc2538_rf_err_isr,          /* 158 RFCORE Error */
   crypto_isr,                 /* 159 AES */
-  pka_isr,                    /* 160 PKA */
+  default_handler,            /* 160 PKA */
   rtimer_isr,                 /* 161 SM Timer */
   default_handler,            /* 162 MACTimer */
 };

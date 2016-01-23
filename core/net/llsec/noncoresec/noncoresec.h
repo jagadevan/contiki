@@ -56,7 +56,6 @@
 #include "net/llsec/llsec.h"
 
 extern const struct llsec_driver noncoresec_driver;
-extern const struct framer noncoresec_framer;
 
 #endif /* NONCORESEC_H_ */
 

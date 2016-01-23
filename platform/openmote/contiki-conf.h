@@ -369,7 +369,7 @@ typedef uint32_t rtimer_clock_t;
  * 1 => Use a hardcoded address, configured by IEEE_ADDR_CONF_ADDRESS
  */
 #ifndef IEEE_ADDR_CONF_HARDCODED
-#define IEEE_ADDR_CONF_HARDCODED            1 
+#define IEEE_ADDR_CONF_HARDCODED             0
 #endif
 
 /**
@@ -402,7 +402,7 @@ typedef uint32_t rtimer_clock_t;
 #endif
 
 #ifndef CC2538_RF_CONF_CHANNEL
-#define CC2538_RF_CONF_CHANNEL              26
+#define CC2538_RF_CONF_CHANNEL              25
 #endif /* CC2538_RF_CONF_CHANNEL */
 
 #ifndef CC2538_RF_CONF_AUTOACK

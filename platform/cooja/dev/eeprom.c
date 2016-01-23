@@ -28,7 +28,6 @@
  *
  */
 
-#include <string.h>
 #include "dev/eeprom.h"
 
 #include "lib/simEnvChange.h"

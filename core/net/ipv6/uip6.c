@@ -288,10 +288,7 @@ struct uip_icmp6_conn uip_icmp6_conns;
 /*---------------------------------------------------------------------------*/
 /* Functions                                                                 */
 /*---------------------------------------------------------------------------*/
-#if UIP_TCP
-#if UIP_ARCH_ADD32
-void uip_add32(uint8_t *op32, uint16_t op16);
-#else /* UIP_ARCH_ADD32 */
+#if (!UIP_ARCH_ADD32 && UIP_TCP)
 void
 uip_add32(uint8_t *op32, uint16_t op16)
 {
@@ -318,8 +315,8 @@ uip_add32(uint8_t *op32, uint16_t op16)
     }
   }
 }
-#endif /* UIP_ARCH_ADD32 */
-#endif /* UIP_TCP */
+
+#endif /* UIP_ARCH_ADD32 && UIP_TCP */
 
 #if ! UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
@@ -541,7 +538,8 @@ remove_ext_hdr(void)
 	   uip_ext_len, uip_len);
     if(uip_len < UIP_IPH_LEN + uip_ext_len) {
       PRINTF("ERROR: uip_len too short compared to ext len\n");
-      uip_clear_buf();
+      uip_ext_len = 0;
+      uip_len = 0;
       return;
     }
     memmove(((uint8_t *)UIP_TCP_BUF), (uint8_t *)UIP_TCP_BUF + uip_ext_len,
@@ -827,7 +825,8 @@ uip_reass_over(void)
      * any RFC, we decided not to include it as it reduces the size of
      * the packet.
      */
-    uip_clear_buf();
+    uip_len = 0;
+    uip_ext_len = 0;
     memcpy(UIP_IP_BUF, FBUF, UIP_IPH_LEN); /* copy the header for src
                                               and dest address*/
     uip_icmp6_error_output(ICMP6_TIME_EXCEEDED, ICMP6_TIME_EXCEED_REASSEMBLY, 0);
@@ -972,7 +971,7 @@ uip_process(uint8_t flag)
   } else if(flag == UIP_TIMER) {
     /* Reset the length variables. */
 #if UIP_TCP
-    uip_clear_buf();
+    uip_len = 0;
     uip_slen = 0;
     
     /* Increase the initial sequence number. */
@@ -1206,8 +1205,8 @@ uip_process(uint8_t flag)
   if(!uip_ds6_is_my_addr(&UIP_IP_BUF->destipaddr) &&
      !uip_ds6_is_my_maddr(&UIP_IP_BUF->destipaddr)) {
     if(!uip_is_addr_mcast(&UIP_IP_BUF->destipaddr) &&
-       !uip_is_addr_linklocal(&UIP_IP_BUF->destipaddr) &&
-       !uip_is_addr_linklocal(&UIP_IP_BUF->srcipaddr) &&
+       !uip_is_addr_link_local(&UIP_IP_BUF->destipaddr) &&
+       !uip_is_addr_link_local(&UIP_IP_BUF->srcipaddr) &&
        !uip_is_addr_unspecified(&UIP_IP_BUF->srcipaddr) &&
        !uip_is_addr_loopback(&UIP_IP_BUF->destipaddr)) {
 
@@ -1241,7 +1240,7 @@ uip_process(uint8_t flag)
       UIP_STAT(++uip_stat.ip.forwarded);
       goto send;
     } else {
-      if((uip_is_addr_linklocal(&UIP_IP_BUF->srcipaddr)) &&
+      if((uip_is_addr_link_local(&UIP_IP_BUF->srcipaddr)) &&
          (!uip_is_addr_unspecified(&UIP_IP_BUF->srcipaddr)) &&
          (!uip_is_addr_loopback(&UIP_IP_BUF->destipaddr)) &&
          (!uip_is_addr_mcast(&UIP_IP_BUF->destipaddr)) &&
@@ -1457,7 +1456,7 @@ uip_process(uint8_t flag)
     UIP_STAT(++uip_stat.icmp.drop);
     UIP_STAT(++uip_stat.icmp.typeerr);
     UIP_LOG("icmp6: unknown ICMPv6 message.");
-    uip_clear_buf();
+    uip_len = 0;
   }
   
   if(uip_len > 0) {
@@ -1748,10 +1747,10 @@ uip_process(uint8_t flag)
   uip_connr->len = 1;
 
   /* rcv_nxt should be the seqno from the incoming packet + 1. */
-  uip_connr->rcv_nxt[0] = UIP_TCP_BUF->seqno[0];
-  uip_connr->rcv_nxt[1] = UIP_TCP_BUF->seqno[1];
-  uip_connr->rcv_nxt[2] = UIP_TCP_BUF->seqno[2];
   uip_connr->rcv_nxt[3] = UIP_TCP_BUF->seqno[3];
+  uip_connr->rcv_nxt[2] = UIP_TCP_BUF->seqno[2];
+  uip_connr->rcv_nxt[1] = UIP_TCP_BUF->seqno[1];
+  uip_connr->rcv_nxt[0] = UIP_TCP_BUF->seqno[0];
   uip_add_rcv_nxt(1);
 
   /* Parse the TCP MSS option, if present. */
@@ -1979,7 +1978,7 @@ uip_process(uint8_t flag)
         uip_add_rcv_nxt(1);
         uip_flags = UIP_CONNECTED | UIP_NEWDATA;
         uip_connr->len = 0;
-        uip_clear_buf();
+        uip_len = 0;
         uip_slen = 0;
         UIP_APPCALL();
         goto appsend;
@@ -2311,7 +2310,8 @@ uip_process(uint8_t flag)
   return;
 
  drop:
-  uip_clear_buf();
+  uip_len = 0;
+  uip_ext_len = 0;
   uip_ext_bitmap = 0;
   uip_flags = 0;
   return;

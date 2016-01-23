@@ -72,7 +72,6 @@
 
 #if RDC_CONF_DEBUG_LED
 #define LED_RDC RDC_CONF_DEBUG_LED
-#undef LED_ACTIVITY
 #define LED_ACTIVITY 1
 #else
 #define LED_RDC 0
@@ -118,7 +117,6 @@
 #endif  /* LED_ACTIVITY */
 
 #if RDC_CONF_HARDWARE_CSMA
-#undef MAC_RETRIES
 #define MAC_RETRIES 0
 #endif  /* RDC_CONF_HARDWARE_CSMA */
 
@@ -171,7 +169,6 @@ const RadioTransmitConfig radioTransmitConfig = {
   TRUE                          /* appendCrc; */
 };
 
-#undef MAC_RETRIES
 #define MAC_RETRIES 0
 
 /*

@@ -294,7 +294,7 @@ PROCESS_THREAD(slip_process, ev, data)
         tcpip_input();
       }
     } else {
-      uip_clear_buf();
+      uip_len = 0;
       SLIP_STATISTICS(slip_ip_drop++);
     }
 #else /* NETSTACK_CONF_WITH_IPV6 */

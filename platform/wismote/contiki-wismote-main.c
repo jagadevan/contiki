@@ -73,7 +73,7 @@ extern const struct uip_router UIP_ROUTER_MODULE;
 #if NETSTACK_CONF_WITH_IPV4
 #include "net/ip/uip.h"
 #include "net/ipv4/uip-fw.h"
-#include "net/ipv4/uip-fw-drv.h"
+#include "net/uip-fw-drv.h"
 #include "net/ipv4/uip-over-mesh.h"
 static struct uip_fw_netif slipif =
   {UIP_FW_NETIF(192,168,1,2, 255,255,255,255, slip_send)};
@@ -221,7 +221,7 @@ main(int argc, char **argv)
   //ds2411_id[2] &= 0xfe;
 
   leds_on(LEDS_BLUE);
-  xmem_init();
+  //xmem_init();
 
   leds_off(LEDS_RED);
   rtimer_init();
@@ -229,12 +229,10 @@ main(int argc, char **argv)
    * Hardware initialization done!
    */
 
-  /* Restore node id if such has been stored in external mem */
-  node_id_restore();
+  node_id = NODE_ID;
 
-  if(!node_id) {
-    node_id = NODE_ID;
-  }
+  /* Restore node id if such has been stored in external mem */
+  //node_id_restore();
 
   /* for setting "hardcoded" IEEE 802.15.4 MAC addresses */
 #ifdef IEEE_802154_MAC_ADDRESS
@@ -259,7 +257,6 @@ main(int argc, char **argv)
   init_platform();
 
   set_rime_addr();
-  random_init(linkaddr_node_addr.u8[LINKADDR_SIZE-2] + linkaddr_node_addr.u8[LINKADDR_SIZE-1]);
 
   cc2520_init();
   {
@@ -427,7 +424,8 @@ main(int argc, char **argv)
       static unsigned long irq_energest = 0;
 
       /* Re-enable interrupts and go to sleep atomically. */
-      ENERGEST_SWITCH(ENERGEST_TYPE_CPU, ENERGEST_TYPE_LPM);
+      ENERGEST_OFF(ENERGEST_TYPE_CPU);
+      ENERGEST_ON(ENERGEST_TYPE_LPM);
       /* We only want to measure the processing done in IRQs when we
 	 are asleep, so we discard the processing time done when we
 	 were awake. */
@@ -446,7 +444,8 @@ main(int argc, char **argv)
       irq_energest = energest_type_time(ENERGEST_TYPE_IRQ);
       eint();
       watchdog_start();
-      ENERGEST_SWITCH(ENERGEST_TYPE_LPM, ENERGEST_TYPE_CPU);
+      ENERGEST_OFF(ENERGEST_TYPE_LPM);
+      ENERGEST_ON(ENERGEST_TYPE_CPU);
     }
   }
 }

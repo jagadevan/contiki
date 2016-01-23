@@ -29,11 +29,11 @@
  */
 /*---------------------------------------------------------------------------*/
 /**
- * \addtogroup sensortag-common-peripherals
+ * \addtogroup sensortag-cc26xx-peripherals
  * @{
  *
  * \file
- *  Board-initialisation for the Srf06EB with a CC13xx/CC26xx EM.
+ *  Board-initialisation for the Srf06EB with a CC26xx EM.
  */
 /*---------------------------------------------------------------------------*/
 #include "contiki-conf.h"

@@ -99,5 +99,6 @@ parse(void)
 const struct framer framer_nullmac = {
   hdr_length,
   create,
+  framer_canonical_create_and_secure,
   parse
 };

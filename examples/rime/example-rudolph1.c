@@ -83,8 +83,9 @@ write_chunk(struct rudolph1_conn *c, int offset, int flag,
   }
   
   if(datalen > 0) {
+    int ret;
     cfs_seek(fd, offset, CFS_SEEK_SET);
-    cfs_write(fd, data, datalen);
+    ret = cfs_write(fd, data, datalen);
   }
 
   cfs_close(fd);

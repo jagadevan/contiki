@@ -40,6 +40,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <io.h>
+#include <signal.h>
 
 /*---------------------------------------------------------------------------*/
 PROCESS(sky_shell_process, "Sky Contiki shell w. webserver");
