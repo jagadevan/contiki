@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
+ * Copyright (c) 2014, OpenMote Technologies, S.L.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,40 @@
  *
  * This file is part of the Contiki operating system.
  *
- * -----------------------------------------------------------------
- *
- * \file
- *         Device simple driver for generic relay for openmote
- * \author
- *         Manoj Sony, <manojsony@gmail.com>
- *
  */
 
-#ifndef RELAY_OPENMOTE_H_
-#define RELAY_OPENMOTE_H_
+/**
+ * \addtogroup platform
+ * @{
+ *
+ * \defgroup openmote The OpenMote Platform
+ *
+ * \file
+ * Header for the MAX44009 light sensor in OpenMote-CC2538.
+ *
+ * \author
+ * Pere Tuset <peretuset@openmote.com>
+ */
 
- 
-void relay_enable(unsigned long port_addr, unsigned char pin);
-void relay_on(unsigned long port_addr, unsigned char pin);
-void relay_off(unsigned long port_addr, unsigned char pin);
-int relay_status(unsigned long port_addr, unsigned char pin);
-void relay_toggle(unsigned long port_addr, unsigned char pin);
+#ifndef __MAX44009_H__
+#define __MAX44009_H__
 
-#endif /* RELAY_OPENMOTE_H_ */
+#include "lib/sensors.h"
 
+#define SENSORS_CONFIG      0xFF
+#define MAX44009_LIGHT_VAL    0
 
+extern const struct sensors_sensor light_sensor;
+/*---------------------------------------------------------------------------*/
+void max44009_init(void);
+void max44009_reset(void);
+uint8_t max44009_is_present(void);
+uint16_t max44009_read_light(void);
+float max44009_convert_light(uint16_t light);
+/*---------------------------------------------------------------------------*/
+int max44009_value(int type);
+int max44009_config(int type, int value);
+int max44009_status(int type);
+/*---------------------------------------------------------------------------*/
+#endif /* ifndef __MAX44009_H__ */
+/** @} */

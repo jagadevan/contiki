@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
+ * Copyright (c) 2014, OpenMote Technologies, S.L.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,27 @@
  *
  * This file is part of the Contiki operating system.
  *
- * -----------------------------------------------------------------
- *
- * \file
- *         Device simple driver for generic relay for openmote
- * \author
- *         Manoj Sony, <manojsony@gmail.com>
- *
  */
 
-#ifndef RELAY_OPENMOTE_H_
-#define RELAY_OPENMOTE_H_
+/**
+ * \addtogroup platform
+ * @{
+ *
+ * \defgroup openmote The OpenMote Platform
+ *
+ * \file
+ * Header for the TPS62730 voltage regulator on the OpenMote-CC2538.
+ *
+ * \author
+ * Pere Tuset <peretuset@openmote.com>
+ */
 
- 
-void relay_enable(unsigned long port_addr, unsigned char pin);
-void relay_on(unsigned long port_addr, unsigned char pin);
-void relay_off(unsigned long port_addr, unsigned char pin);
-int relay_status(unsigned long port_addr, unsigned char pin);
-void relay_toggle(unsigned long port_addr, unsigned char pin);
-
-#endif /* RELAY_OPENMOTE_H_ */
-
-
+#ifndef TPS62730_H_
+#define TPS62730_H_
+/*---------------------------------------------------------------------------*/
+void tps72730_init(void);
+void tps72730_internal(void);
+void tps72730_external(void);
+/*---------------------------------------------------------------------------*/
+#endif /* TPS62730_H_ */
+/** @} */

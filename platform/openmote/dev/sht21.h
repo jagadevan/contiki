@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
+ * Copyright (c) 2014, OpenMote Technologies, S.L.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,44 @@
  *
  * This file is part of the Contiki operating system.
  *
- * -----------------------------------------------------------------
- *
- * \file
- *         Device simple driver for generic relay for openmote
- * \author
- *         Manoj Sony, <manojsony@gmail.com>
- *
  */
 
-#ifndef RELAY_OPENMOTE_H_
-#define RELAY_OPENMOTE_H_
+/**
+ * \addtogroup platform
+ * @{
+ *
+ * \defgroup openmote The OpenMote Platform
+ *
+ * \file
+ * Header for the SHT21 temperature and humidity sensor in OpenMote-CC2538.
+ *
+ * \author
+ * Pere Tuset <peretuset@openmote.com>
+ */
 
- 
-void relay_enable(unsigned long port_addr, unsigned char pin);
-void relay_on(unsigned long port_addr, unsigned char pin);
-void relay_off(unsigned long port_addr, unsigned char pin);
-int relay_status(unsigned long port_addr, unsigned char pin);
-void relay_toggle(unsigned long port_addr, unsigned char pin);
+#ifndef __SHT21_H__
+#define __SHT21_H__
 
-#endif /* RELAY_OPENMOTE_H_ */
+#include "lib/sensors.h"
 
+#define SENSORS_CONFIG      0xFF
+#define SHT21_TEMP_VAL      0
+#define SHT21_HUMIDITY_VAL  1
 
+extern const struct sensors_sensor temp_sensor, humidity_sensor;
+/*---------------------------------------------------------------------------*/
+void sht21_init(void);
+void sht21_set_config(uint8_t config);
+void sht21_reset(void);
+uint8_t sht21_is_present(void);
+uint16_t sht21_read_temperature(void);
+float sht21_convert_temperature(uint16_t temperature);
+uint16_t sht21_read_humidity(void);
+float sht21_convert_humidity(uint16_t humidity);
+/*---------------------------------------------------------------------------*/
+int sht21_value(int type);
+int sht21_config(int type, int value);
+int sht21_status(int type);
+/*---------------------------------------------------------------------------*/
+#endif /* ifndef __SHT21_H__ */
+/** @} */

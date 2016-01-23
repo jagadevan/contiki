@@ -67,6 +67,7 @@
 #include "reg.h"
 #include "ieee-addr.h"
 #include "lpm.h"
+#include "i2c.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -156,6 +157,7 @@ main(void)
   lpm_init();
   rtimer_init();
   gpio_init();
+  i2c_init(I2C_SDA_PORT, I2C_SDA_PIN, I2C_SCL_PORT, I2C_SCL_PIN, I2C_SCL_FAST_BUS_SPEED);
 
   leds_init();
   fade(LEDS_YELLOW);
@@ -163,7 +165,7 @@ main(void)
   process_init();
 
   watchdog_init();
-  button_sensor_init();
+//  button_sensor_init();
 
   /*
    * Character I/O Initialisation.

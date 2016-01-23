@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,26 +27,34 @@
  * SUCH DAMAGE.
  *
  * This file is part of the Contiki operating system.
- *
- * -----------------------------------------------------------------
- *
- * \file
- *         Device simple driver for generic relay for openmote
- * \author
- *         Manoj Sony, <manojsony@gmail.com>
- *
  */
 
-#ifndef RELAY_OPENMOTE_H_
-#define RELAY_OPENMOTE_H_
+/**
+ * \file
+ *      ETSI Plugtest resource
+ * \author
+ *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ */
 
- 
-void relay_enable(unsigned long port_addr, unsigned char pin);
-void relay_on(unsigned long port_addr, unsigned char pin);
-void relay_off(unsigned long port_addr, unsigned char pin);
-int relay_status(unsigned long port_addr, unsigned char pin);
-void relay_toggle(unsigned long port_addr, unsigned char pin);
+#include <string.h>
+#include "rest-engine.h"
+#include "er-coap.h"
+#include "er-plugtest.h"
 
-#endif /* RELAY_OPENMOTE_H_ */
+static void res_post_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 
+RESOURCE(res_plugtest_create2,
+         "title=\"Creates on POST\"",
+         NULL,
+         res_post_handler,
+         NULL,
+         NULL);
 
+static void
+res_post_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+{
+  PRINTF("/create2       ");
+
+  REST.set_response_status(response, REST.status.CREATED);
+  REST.set_header_location(response, "/location1/location2/location3");
+}

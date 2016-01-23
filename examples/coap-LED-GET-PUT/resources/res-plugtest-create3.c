@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,26 +27,54 @@
  * SUCH DAMAGE.
  *
  * This file is part of the Contiki operating system.
- *
- * -----------------------------------------------------------------
- *
- * \file
- *         Device simple driver for generic relay for openmote
- * \author
- *         Manoj Sony, <manojsony@gmail.com>
- *
  */
 
-#ifndef RELAY_OPENMOTE_H_
-#define RELAY_OPENMOTE_H_
+/**
+ * \file
+ *      ETSI Plugtest resource
+ * \author
+ *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
+ */
 
- 
-void relay_enable(unsigned long port_addr, unsigned char pin);
-void relay_on(unsigned long port_addr, unsigned char pin);
-void relay_off(unsigned long port_addr, unsigned char pin);
-int relay_status(unsigned long port_addr, unsigned char pin);
-void relay_toggle(unsigned long port_addr, unsigned char pin);
+#include <string.h>
+#include "rest-engine.h"
+#include "er-coap.h"
+#include "er-plugtest.h"
 
-#endif /* RELAY_OPENMOTE_H_ */
+static void res_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+static void res_delete_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 
+RESOURCE(res_plugtest_create3,
+         "title=\"Default test resource\"",
+         NULL,
+         NULL,
+         res_put_handler,
+         res_delete_handler);
 
+static uint8_t create3_exists = 0;
+
+static void
+res_put_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+{
+  PRINTF("/create3       PUT ");
+
+  if(coap_get_header_if_none_match(request)) {
+    if(!create3_exists) {
+      REST.set_response_status(response, REST.status.CREATED);
+
+      create3_exists = 1;
+    } else {
+      REST.set_response_status(response, PRECONDITION_FAILED_4_12);
+    }
+  } else {
+    REST.set_response_status(response, REST.status.CHANGED);
+  }
+}
+static void
+res_delete_handler(void *request, void *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+{
+  PRINTF("/create3       DELETE ");
+  REST.set_response_status(response, REST.status.DELETED);
+
+  create3_exists = 0;
+}
