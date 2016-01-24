@@ -51,4 +51,12 @@
 #define WEBSERVER_CONF_CFS_CONNS 2
 #endif
 
+/* Custom channel and PAN ID configuration for your project. */
+
+   #undef RF_CHANNEL
+   #define RF_CHANNEL                     25
+
+   #undef IEEE802154_CONF_PANID
+   #define IEEE802154_CONF_PANID          0xABCD
+
 #endif /* PROJECT_ROUTER_CONF_H_ */
