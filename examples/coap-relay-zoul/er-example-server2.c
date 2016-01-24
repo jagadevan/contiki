@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +8,7 @@
 #define REST_RES_TOGGLE 1
 #define REST_RES_MIRROR 0 /* causes largest code size */
 
-#include "erbium.h"
+#include <erbium.h>
 
 
 #if defined (PLATFORM_HAS_LEDS)
@@ -341,5 +339,3 @@ PROCESS_THREAD(rest_server_example, ev, data)
 
 PROCESS_END();
 }
-
-
