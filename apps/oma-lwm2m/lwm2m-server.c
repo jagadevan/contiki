@@ -68,6 +68,7 @@ LWM2M_RESOURCES(server_resources,
 		LWM2M_RESOURCE_INTEGER_VAR_ARR(0, MAX_COUNT, sid_arr),
 		LWM2M_RESOURCE_INTEGER_VAR_ARR(1, MAX_COUNT, lifetime_arr),
                 );
+LWM2M_INSTANCES(server_instances, LWM2M_INSTANCE(1, server_resources));
 LWM2M_OBJECT(server, 1, server_instances);
 /*---------------------------------------------------------------------------*/
 void
