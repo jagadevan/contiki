@@ -316,7 +316,7 @@ PROCESS_THREAD(lwm2m_rd_client, ev, data)
 		if(etimer_expired(&et)) {
 			timer_counter_15++;
 				printf("15 test value %d \n", timer_counter_15);
-			if(timer_counter_15 == 3)
+			if(timer_counter_15 == 20) // for 90 seconds 
 			{
 				printf("15 value \n");
 				timer_counter_15 = 0;
@@ -454,9 +454,10 @@ PROCESS_THREAD(lwm2m_rd_client, ev, data)
 					//	strcpy(client_reg , client_reg_id);
 					//		printf("test :reg %s\n",client_reg);
 					//	snprintf(client_reg, sizeof(client_reg) -1,"/%s",client_reg);
-					strcat(client_reg,"/");
-					strcat(client_reg,client_reg_id+1);
 			//		strcat(client_reg,client_reg_id+2);
+							strcpy(client_reg,"");
+							strcat(client_reg,"/");
+							strcat(client_reg,client_reg_id+1);
 					printf("mid = %d\n",request->mid);
 					printf("ack_mid = %u\n",ack_mid);
 
@@ -478,9 +479,10 @@ PROCESS_THREAD(lwm2m_rd_client, ev, data)
 					//	for(update_counter = 0;update_counter<=3 ;update_counter++)
 					//	{
 
-					printf("reg is time %s\n",client_reg);
+					printf("reg is time %s  \n",client_reg);
 					/* prepare request, TID is set by COAP_BLOCKING_REQUEST() */
-					if(timer_counter_15 == 0 || previous_ack_not_found == 1)
+				//	if(timer_counter_15 == 0 || previous_ack_not_found == 1)
+					if(timer_counter_15 == 0 )
 					{
 						coap_init_message(request, COAP_TYPE_CON, COAP_PUT, 0);
 						coap_set_header_uri_path(request, client_reg);
@@ -502,6 +504,10 @@ PROCESS_THREAD(lwm2m_rd_client, ev, data)
 							}
 							else
 							{
+							//	update =0;
+							}
+						/*	else
+							{
 								printf("update unsucessfull try : %d\n",update_counter);	
 								ack_mid = 0;
 								res_code = 0;
@@ -514,12 +520,15 @@ PROCESS_THREAD(lwm2m_rd_client, ev, data)
 									*client_reg='\0';
 									printf("update failure so re-registering\n");
 								}
-							}
+							}*/
 						}
 						else
 						{
 							printf("Ack not found \n");
 							previous_ack_not_found = 1;
+							update =0;
+					//		client_reg[0] = '\0';
+							strcpy(client_reg,"");
 						}
 					}
 

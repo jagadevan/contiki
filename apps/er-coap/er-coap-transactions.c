@@ -41,7 +41,7 @@
 #include "er-coap-transactions.h"
 #include "er-coap-observe.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -98,7 +98,7 @@ coap_send_transaction(coap_transaction_t *t)
     if(t->retrans_counter < COAP_MAX_RETRANSMIT) {
       /* not timed out yet */
       PRINTF("Keeping transaction %u\n", t->mid);
-
+#if 0
       if(t->retrans_counter == 0) {
         t->retrans_timer.timer.interval =
           COAP_RESPONSE_TIMEOUT_TICKS + (random_rand()
@@ -116,6 +116,28 @@ coap_send_transaction(coap_transaction_t *t)
       PROCESS_CONTEXT_BEGIN(transaction_handler_process);
       etimer_restart(&t->retrans_timer);        /* interval updated above */
       PROCESS_CONTEXT_END(transaction_handler_process);
+#endif
+
+
+
+
+      if(t->retrans_counter == 0) {
+        t->retrans_timer.timer.interval =
+          COAP_RESPONSE_TIMEOUT_TICKS;
+        PRINTF("Initial interval %f\n",
+               (float)t->retrans_timer.timer.interval / CLOCK_SECOND);
+      } else {
+       // t->retrans_timer.timer.interval <<= 1;  /* double */
+        PRINTF("Doubled (%u) interval %f\n", t->retrans_counter,
+               (float)t->retrans_timer.timer.interval / CLOCK_SECOND);
+      }
+
+      PROCESS_CONTEXT_BEGIN(transaction_handler_process);
+      etimer_restart(&t->retrans_timer);        /* interval updated above */
+      PROCESS_CONTEXT_END(transaction_handler_process);
+
+
+
 
       t = NULL;
     } else {
